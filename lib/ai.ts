@@ -6,24 +6,29 @@ import { z } from "zod";
 // the key may be saved as GEMINI_API_KEY or Gemini_Api_Key
 const KEY = () => process.env.GEMINI_API_KEY || process.env.Gemini_Api_Key || "";
 
+// Lenient on shape (trim long text, rescale positions given as 0–100, clamp), strict on meaning.
+const text = (max: number) => z.string().transform((v) => { const t = v.trim().replace(/\s+/g, " "); return t.length > max ? t.slice(0, max - 1).trimEnd() + "…" : t; });
+const num = (max: number) => z.coerce.number().transform((v) => (Number.isFinite(v) ? Math.min(max, Math.max(0, v)) : 0));
+const pos = z.coerce.number().transform((v) => { if (!Number.isFinite(v)) return 0.5; const x = v > 1 && v <= 100 ? v / 100 : v; return Math.min(1, Math.max(0, x)); });
+
 export const ItemSchema = z.object({
-  name: z.string().min(1).max(60),
-  grams: z.number().min(0).max(3000),
-  kcal: z.number().min(0).max(5000),
-  protein: z.number().min(0).max(400),
-  carbs: z.number().min(0).max(600),
-  fat: z.number().min(0).max(400),
+  name: text(48).pipe(z.string().min(1)),
+  grams: num(3000),
+  kcal: num(5000),
+  protein: num(400),
+  carbs: num(600),
+  fat: num(400),
   // position of the food on the photo, 0..1, for the pinned labels
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
+  x: pos,
+  y: pos,
 });
 
 export const PlateSchema = z.object({
   is_food: z.boolean(),
-  dish: z.string().max(60),
-  items: z.array(ItemSchema).max(12),
-  insight: z.string().max(160),
-  confidence: z.enum(["high", "medium", "low"]),
+  dish: text(56),
+  items: z.array(ItemSchema).transform((a) => a.slice(0, 12)),
+  insight: text(170),
+  confidence: z.enum(["high", "medium", "low"]).catch("medium"),
 });
 
 export type Item = z.infer<typeof ItemSchema>;
@@ -37,20 +42,20 @@ const responseSchema = {
   type: Type.OBJECT,
   properties: {
     is_food: { type: Type.BOOLEAN, description: "true when any food or drink is visible, including drawings or illustrations of a meal; false only when there is no food at all" },
-    dish: { type: Type.STRING, description: "Short everyday US name of the whole meal, e.g. 'chicken burrito bowl'" },
+    dish: { type: Type.STRING, description: "Short everyday US name of the whole meal, at most 6 words, e.g. 'chicken burrito bowl'" },
     items: {
       type: Type.ARRAY,
       items: {
         type: Type.OBJECT,
         properties: {
-          name: { type: Type.STRING, description: "Simple food name, lowercase, e.g. 'grilled chicken breast'" },
+          name: { type: Type.STRING, description: "Simple food name, lowercase, at most 4 words, e.g. 'grilled chicken breast'" },
           grams: { type: Type.NUMBER, description: "Estimated edible portion weight in grams" },
           kcal: { type: Type.NUMBER },
           protein: { type: Type.NUMBER, description: "grams" },
           carbs: { type: Type.NUMBER, description: "grams" },
           fat: { type: Type.NUMBER, description: "grams" },
-          x: { type: Type.NUMBER, description: "Horizontal center of this food on the photo, 0 = left, 1 = right" },
-          y: { type: Type.NUMBER, description: "Vertical center of this food on the photo, 0 = top, 1 = bottom" },
+          x: { type: Type.NUMBER, description: "Horizontal center of this food on the photo as a fraction from 0.0 (left edge) to 1.0 (right edge)" },
+          y: { type: Type.NUMBER, description: "Vertical center of this food on the photo as a fraction from 0.0 (top edge) to 1.0 (bottom edge)" },
         },
         required: ["name", "grams", "kcal", "protein", "carbs", "fat", "x", "y"],
         propertyOrdering: ["name", "grams", "kcal", "protein", "carbs", "fat", "x", "y"],
@@ -59,7 +64,7 @@ const responseSchema = {
     insight: {
       type: Type.STRING,
       description:
-        "One short, kind, useful sentence about this plate that does NOT contain any number, e.g. 'Most of the protein comes from the grilled chicken.'",
+        "One short (under 20 words), kind, useful sentence about this plate that does NOT contain any number, e.g. 'Most of the protein comes from the grilled chicken.'",
     },
     confidence: { type: Type.STRING, enum: ["high", "medium", "low"] },
   },
