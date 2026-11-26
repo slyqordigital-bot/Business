@@ -1,69 +1,52 @@
-# MacroSnap — project brief for every session
+# SnackQuest — project brief for every session
 
-Snap your meal, track your macros instantly. A real SaaS built with the Kwop method.
-The full owner brief is in `KWOP-BUILD.md` (local only, gitignored: it holds the Kwop key). Read it before working.
-Secrets live only in `.env.local` and in Vercel: `KWOP_API`, Supabase keys, `GEMINI_API_KEY`. Never commit them, never put them in browser code.
+Made for gamers who love snacks. The gamified rewards app for hungry gamers: link your games, take on absurd snack quests, earn points, redeem gear.
+Built with the Kwop method, PREMIUM build. The full owner brief is in `KWOP-BUILD.md` (local only, gitignored: it holds the Kwop key). Read it before working.
+Secrets live only in `.env.local` and in Vercel: `KWOP_API`, Supabase keys, `GEMINI_API_KEY`, `STEAM_API_KEY`. Never commit them, never put them in browser code.
+(This repo used to hold MacroSnap; that code stays on `main`. This branch is SnackQuest.)
 
 ## RESULT
-**your macros** — "Snap my macros" is the main button; the creating screen is "Reading your plate…"; the paywall says "Your plate's macros are ready."
+**your Snack Quest**: main button "Start my Snack Quest"; creating screen "Building your Snack Quest…"; paywall "Your <game> × <snack> quest is ready."; notifications "Quest cleared · +120 pts".
 
 ## Step 0 — what already converts (US market)
-| App | Landing / headline | First result | Paywall | Plans |
+| App | Landing / headline | Sign-up → first result | Paywall | Plans |
 |---|---|---|---|---|
-| **MyFitnessPal** | "Fitness starts with what you eat", app-store buttons, feature rows, testimonials | Long onboarding (goals, weight, activity) → account → diary; Meal Scan is Premium | After onboarding, before the first scan | Free; Premium $19.99/mo or $79.99/yr (Meal Scan, Barcode, Voice log); Premium+ $99.99/yr |
-| **Lose It!** | "Lose weight the healthy way", goal-first | Onboarding quiz (goal weight, pace) → account → log; Snap It photo logging is Premium | End of onboarding, trial offer | Free; Premium ≈ $9.99/mo, $39.99–79.99/yr |
-| **Cal AI** (replaces nothing; it is the photo-first leader, added as the 3rd) | "Track calories just by taking a picture" | Quiz (≈20 screens) → plan → paywall → first photo scan | Hard paywall before any scan | ≈ $9.99–14.99/mo or $39.99/yr, 3-day trial |
+| **BUFF.Game** (Overwolf) | "Who said gaming doesn't give you anything?" Play → earn Buffs → redeem in the Marketplace; supported-games grid, rewards wall | Download, link game account (Riot/Steam/PS), play, points appear after the match | Premium upsell inside the app (boosted earnings), never before value | Free; Premium $3.99/mo ($35.99/yr: 50 monthly Buffs, +150 % game earnings, premium items); Premium Plus $5.99/mo ($53.99/yr); Premium Elite $7.99/mo ($69.99/yr: 200 monthly Buffs, +300 % earnings, +200 % daily rewards). Gift cards ≈600 Buffs, Steam codes 900–1,500 |
+| **Mistplay** (replaces SideQuest) | "Play games, earn rewards"; Units → gift cards (Amazon, Google Play, Nintendo, Visa) | Android app, pick a game, Units per minute played | No paid plan: loyalty status tiers (Bronze → Platinum) | Free; $5 gift card ≈1,800 Units; $550/yr redemption cap |
+| **Habitica** (the "progress made visible" leader) | "Gamify your life": habits become quests, XP, streaks | Sign up → create avatar → first daily tasks right away | Soft: subscription offered inside the app | Free; $4.99/mo, $14.99/3 mo, $47.99/yr (extras, gems) |
 
-Both MyFitnessPal and Lose It! really do this job (photo meal logging), but only as a Premium add-on inside a database-first app.
-**Model picked: Cal AI** for structure (photo-first, the photo IS the product). We beat it with Kwop rule 3: the scan works on the landing page with no account and no quiz; the paywall appears over the visitor's own plate.
+SideQuest was checked and dropped: it is a VR app store (plus unrelated "sidequest" habit apps), not a gamer rewards app. Mistplay does the job (rewards for playing).
+**Model picked: BUFF.Game** for structure (link games → earn points while playing → challenges → marketplace), plus Habitica's quest/streak loop. We beat them with Kwop's personal flow: sign-up → 4 one-tap questions → a real AI-built quest run with your own goal date, before any price.
 
 ## Step 0b — the blueprint
-- **Funnel: TRY FIRST.** A photo is the only input, AI answers in seconds: the hero IS the scanner. No quiz before value.
-- **Hero (first 10 s):** title "Snap your plate. Get your macros." (subtitle: "How I track 500 calories in 2 seconds without typing anything"). Under it a big recipe-card drop zone: "Take a photo of your meal" (opens the camera on phones, `capture="environment"`), "or upload one", plus 3 example plates (avocado toast, chicken bowl, pasta) tried in one tap. Line of true facts: "Free to try · No account · Ready in about 5 seconds".
-- **The work (in place, ≥3 s, real Gemini call):** scan lines + points over their own photo, progress ring 0→99 %, 5 named steps: "Finding every food on the plate" → "Estimating portion sizes" → "Matching nutrition data" → "Adding up protein, carbs and fat" → "Checking your totals". Then "Your plate's macros are ready."
-- **Teaser:** clear = their photo with detected food labels pinned on it + the food names list + one insight ("Most of the protein comes from the grilled chicken."). Blurred = total calories (big), protein/carbs/fat grams and the per-item breakdown, behind a soft gradient and a lock.
-- **Unlock button:** "See my full macros". No account → sign-up sheet "Save this meal to your log" (Google first, email+password). Then the paywall right away, the blurred result behind it.
-- **Paywall title:** "Your plate's macros are ready." Personal line: "<N> foods found in your <dish name>. Unlock the numbers and log it in one tap."
-- **Plans** (names/prices from Kwop API, quotas below), "What you unlock" in scans a month, detailed breakdowns, history, trends.
-- **Unlock film:** "You're on <Plan>" → 3 icons (Scans, Breakdown, Streaks) → "Let's log it".
-- **App:** Today (rings for kcal/P/C/F, today's meals, streak), Scan, History (by day, edit/delete), Settings (daily goals), Account (plan, billing, cancel, delete account). Privacy: photos are stored in a private Supabase Storage bucket, only the owner can read them; delete a meal deletes its photo.
-- **Magic moment on landing:** the live scanner itself + a phone frame looping a scan in the "How it works" section.
-- **Visual direction (Food & cooking):** warm cream `#FBF6EC` background, ink `#1D1A15`, tomato `#E5482F`, olive `#6B7B3A`, lime accent `#C8FF3D` (Kwop brand color, used as the highlight on dark sections and the scan lines), dark sections `#14120E`. Fonts: Fraunces (headings), Inter (text), JetBrains Mono (labels `[ HOW IT WORKS ]`). Signature elements: 1) recipe cards (rounded 20 px, paper texture, punched corner), 2) the scan frame (corner brackets + lime scan line + pinned food labels), 3) macro rings (protein tomato, carbs olive-gold `#D9A441`, fat olive).
-- Kwop kit adapted: dark hero `#14120E` with dot grid and a warm glow, light cream sections alternating; floating top bar; breathing pill button; giant faded wordmark footer.
-- Honest limits shown in app: macros are AI estimates from a photo (±10–20 %), not medical advice.
+- **Funnel: PERSONAL FLOW.** The result needs who they are (game, snack, goal), so: landing → sign-up → 4 questions → the one input (gamer tag / Steam profile, example filled) → the work → locked result → paywall. Why: like Buff, value comes from linking your games; we make that first session happen in under a minute.
+- **Hero (first 10 s):** title "Snack. Play. Unlock real gear." (second line in gradient). Sentence: "Turn your **snack breaks** into quests and your **playtime** into points you trade for gear." Button "Start my Snack Quest →". Facts line: "Free to start · No card · Your quest in 60 seconds". Right (under the button on a phone): a CSS iPhone (dynamic island, live time, lock-screen clock) with SnackQuest notifications sliding in on Kwop timings (0 / 0.9 / 1.8 s, then every 2.6 s; 3 visible desktop, 2 phone; older dim, "now" → "1m ago"): "Quest cleared: Pizza-slice clutch · +120 pts", "Fortnite session synced · 48 min · +96 pts", "Streak 6 days. Shield ready", "Reward unlocked: Pro Gaming Headset" (example values).
+- **VSL (under hero, 6 scenes ≈ 60 s, HTML/CSS):** 1 the problem ("Gear costs $$$. You snack anyway.") → 2 the click ("What if every chip counted?") → 3 SnackQuest in action (quest card + photo check) → 4 the RESULT (points bar filling to a headset) → 5 what changes (streak, rewards) → 6 CTA. Script in VSL.md; public/vsl.mp4 replaces it when present.
+- **Sections:** [ THE PROBLEM ] · [ HOW IT WORKS ] 3 steps in animated phone frames (Connect · Snack & Play · Collect) · [ IN ACTION ] feature loops (Game Sync, Snack Quests, Reward Shop, Streak Tracker) · [ THE USUAL WAY ] comparison · [ QUESTIONS ] 6 · final block "Tonight: one pizza, one match, your first +120." · footer with giant wordmark. No prices anywhere.
+- **Sign-up** (centered card on a calm dark background): "Sign up so SnackQuest can build your quest." Google (hidden until enabled) / email + password / "Already have an account? Log in" / Terms·Privacy line.
+- **Personal flow (typed question, square ticks, drawer line, 1.3 s auto-advance, thin progress bar, ← Previous question):**
+  1. "What do you play the most?" Fortnite · Valorant · Minecraft · Call of Duty · League of Legends · Roblox · Something else
+  2. "And what's your go-to <game> snack?" Pizza · Chips · Wings · Candy · Energy drinks · Healthy stuff
+  3. "When do you usually grind?" After school/work · Late night · Weekends · All the time
+  4. "What gear do you want to unlock first?" Headset · Controller · Keyboard · Mouse · Game gift card
+  5. The one input: "Link your Steam profile (optional)" with example `https://steamcommunity.com/id/gaben`, plus "Skip, I play on console / Epic" (honest: the session timer counts those).
+- **The work (≥6 s, real Gemini call + real computation):** 5 steps: "Reading your gamer profile" → "Syncing your games" (real Steam call when linked) → "Cooking up snack quests" (Gemini writes 7 absurd quests for their game + snack) → "Pricing your reward" → "Plotting your 30-day run". Percent 0→99 %, holds until done, retry once, then "Try again". Then "Your Snack Quest is ready."
+- **Teaser:** CLEAR = quest #1 (title, rule, +points), streak "Day 1 started", their goal reward card. BLURRED = quests 2–7, the 30-day projection ("<Headset> unlocked around <date>") and the points chart, soft gradient + lock.
+- **Unlock button:** "Unlock my quests". Sticky bar after ✕: "Unlock my quests · $0.33 / day".
+- **Paywall title:** "Your <Fortnite> × <pizza> quest is ready." Personal line: "7 quests built around your <late-night> sessions. Unlock them and start earning toward your <headset>."
+- **Unlock film:** "You're on <Plan>" → 3 icons (Quests, Points boost, Rewards) → "Let's play". Track "aha".
+- **App** (sidebar desktop / bottom tabs phone): Dashboard (points, streak, today's quest, sessions, projection), Quests (today + run, complete with snack photo checked by Gemini, regenerate, history), Rewards (shop, redeem, my redemptions with status), Profile (Game Sync: Steam link + session timer, stats, share card), Account (plan, billing, cancel, delete).
+- **Honest limits shown in the app:** websites can't read console/Epic games, so Game Sync = Steam Web API (public profiles, recent playtime) + an in-browser session timer (tab must stay open, capped per day). Rewards are fulfilled by the SnackQuest team by hand; status updates in Rewards. Not affiliated with Epic, Valve, Riot or any game.
+- **Visual direction (Gaming, neon on dark):** bg `#07060D`, deep purple panels `#140F24` / `#1C1533`, borders `rgb(255 255 255 / .09)`, cyan `#22E1FF`, violet `#8B5CF6`, brand lime `#C8FF3D` (main buttons, points), hot pink `#FF4D8D` (snack accents), light sections `#F5F3FA` ink `#0E0B18`. Fonts: Rajdhani 700 (display, used sparingly), Inter (text), JetBrains Mono (labels `[ HOW IT WORKS ]`). Signature elements: 1) HUD panels with clipped corners + glowing edge, 2) XP bar (segmented, lime fill, shimmer), 3) quest cards with a rarity stripe (common cyan / rare violet / legendary lime).
 
-## Plans and quotas (option B, saved in Kwop on 2026-11-26; server-counted per billing period)
-Names, ids and prices are always read from GET KWOP_API (never hardcoded). Quotas live in `lib/plans.ts`, matched by plan position (cheapest first).
-| Plan (Kwop id) | Price | Per day | Yearly (−20 %) | Tag | Quotas |
-|---|---|---|---|---|---|
-| Snack (1923) | $6.99/mo | $0.23 | $67/yr ($0.18/day) | For casual tracking | 40 scans/month, calorie + macro totals, 30 days of history |
-| **Plate (1924)** Most popular | $9.99/mo | $0.33 | $96/yr ($0.26/day) | For daily goals | 150 scans/month, per-food breakdown, unlimited history, streaks + trend charts |
-| Feast (1925) | $15.99/mo | $0.53 | $154/yr ($0.42/day) | For strict control | 400 scans/month, all of Plate, week-by-week comparisons, CSV export, priority scans |
-Free visitors: 3 scans/day per device + IP, teaser only (foods + one insight; numbers blurred).
-Locked on lower plans: Snack sees per-food breakdown and trends blurred ("Unlock with Plate"); Plate sees weekly comparison + CSV export locked ("Unlock with Feast").
+## Plans and quotas
+Names, ids and prices are always read from GET KWOP_API (never hardcoded). Quotas live in `lib/plans.ts`, matched by plan position (cheapest first). Filled in after the owner picks prices (step 0c).
 
 ## Kwop API (server only, `lib/kwop.ts`)
-`KWOP_API` env. GET → plans; POST /checkout {plan, period, email, k} → {embed, ref, fallback_url} (409 payments_off); POST /confirm {ref}; GET /plan?email= (cached 60 s); POST /cancel {email, except_ref?}; POST /event {type, email, detail} fire-and-forget; POST /connect {url}. `k` from ?k= → cookie `kwop_k` 30 days → profiles.k. Tracking script `https://kwop.io/flow.js` data-site `s_8619cfc2b1` on public pages only.
+`KWOP_API` env. GET → plans; POST /checkout {plan, period, email, k} → {embed, ref, fallback_url} (409 payments_off); POST /confirm {ref}; GET /plan?email= (cached 60 s); POST /cancel {email, except_ref?}; POST /event {type, email, detail} fire-and-forget; POST /connect {url}. `k` from ?k= → cookie `kwop_k` 30 days → profiles.k. Tracking script `https://kwop.io/flow.js` data-site `s_6522168370` on public pages only.
 
 ## Stack
 Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + lucide-react. Supabase (Postgres, Auth, Storage, RLS on every table; SQL in supabase/migrations). Vercel. AI only in `lib/ai.ts` (Gemini Flash).
 
 ## Verification loop (after every feature)
 `npm run dev`, `node scripts/shot.mjs` screenshots at 390×844 and 1440×900, look at every image, zero console errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the funnel (never pays).
-
-## Build status (2026-11-26)
-Built and verified locally (screenshots at 390 and 1440, zero console errors, `npm run build` + `npm run lint` clean):
-landing page with the live scanner, scan animation, locked teaser, motion VSL; sign-up sheet, /signup, /login, /forgot, /reset, Google callback;
-paywall (real Kwop plans), in-page Whop checkout sheet, confirm + unlock film, /pricing, /dashboard return; app: Today, Scan, History (trends, week by week, CSV), Settings (goals), Account (billing, cancel, delete); meal page (edit portions, delete, share); public share page + OG images; legal pages, 404/error, manifest + icons.
-Kwop: plans saved (option B) and `/checkout` verified to return a Whop embed.
-
-### Not done yet — needs the owner's keys (cloud environment "Business" → Edit → Environment variables), then a new session
-- `SUPABASE_ACCESS_TOKEN` (supabase.com/dashboard/account/tokens): create project `macrosnap-3`, push `supabase/migrations`, auth config (mailer_autoconfirm true, site_url, uri_allow_list). Hosts `api.supabase.com` and `*.supabase.co` must be allowed.
-- `VERCEL_TOKEN` (vercel.com/account/tokens): project `macrosnap-3`, env vars from `.env.example`, deploy. Hosts `api.vercel.com` / `vercel.com` must be allowed.
-- `GEMINI_API_KEY` (aistudio.google.com/apikey): the scanner answers "opens in a moment" until it is set.
-- Then: Google sign-in (set `NEXT_PUBLIC_GOOGLE_AUTH=1` once enabled), run `npm run e2e` against the live URL, POST KWOP_API/connect with the production URL, security pass (RLS test with two users).
-
-### Dev notes
-- Example plates in `public/examples/*.svg` are illustrations (no stock-photo host was reachable); swap for real photos with the same names (.jpg) and update `EXAMPLES` in `components/landing/Scanner.tsx`.
-- Locked results never send numbers to the browser (`lib/meals.ts` `toView`).
-- `scripts/shot.mjs` (screenshots), `scripts/flow-shot.mjs` (funnel states with a mocked AI answer, dev only), `tests/e2e.spec.ts` (real funnel, needs live services).
