@@ -12,9 +12,9 @@ import { deviceId, preparePhoto, tryStore, type SavedTry } from "@/lib/client";
 import { cn } from "@/lib/utils";
 
 export const EXAMPLES = [
-  { key: "avocado-toast", label: "Avocado toast", src: "/examples/avocado-toast.svg" },
-  { key: "chicken-bowl", label: "Chicken bowl", src: "/examples/chicken-bowl.svg" },
-  { key: "spaghetti", label: "Spaghetti", src: "/examples/spaghetti.svg" },
+  { key: "avocado-toast", label: "Avocado toast", src: "/examples/avocado-toast.jpg" },
+  { key: "poke-bowl", label: "Poke bowl", src: "/examples/poke-bowl.jpg" },
+  { key: "spaghetti", label: "Spaghetti", src: "/examples/spaghetti.jpg" },
 ];
 
 type State =
@@ -137,6 +137,7 @@ function ScannerInner({ mealId, paywallClosed }: { mealId: React.RefObject<strin
                   </button>
                 ))}
               </div>
+              <p className="mt-2 text-center text-[11px] text-cream/35">Example photos: <a href="/credits" className="underline underline-offset-2 hover:text-cream/60">credits</a></p>
             </div>
           </motion.div>
         )}

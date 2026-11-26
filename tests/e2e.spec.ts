@@ -11,7 +11,7 @@ test("try-first funnel", async ({ page }) => {
 
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Snap your plate");
-  await page.getByTestId("example-chicken-bowl").click();
+  await page.getByTestId("example-poke-bowl").click();
   await expect(page.getByTestId("working")).toBeVisible();
   await expect(page.getByTestId("teaser")).toBeVisible({ timeout: 60_000 });
   await expect(page.getByTestId("locked-numbers")).toBeVisible();

@@ -363,6 +363,7 @@ export function Footer() {
           <Link href="/login" className="block hover:text-cream">Log in</Link>
           <Link href="/terms" className="block hover:text-cream">Terms</Link>
           <Link href="/privacy" className="block hover:text-cream">Privacy</Link>
+          <Link href="/credits" className="block hover:text-cream">Photo credits</Link>
         </div>
       </div>
       <p className="mx-auto mt-12 max-w-[1120px] text-[12px] text-cream/40">© {new Date().getFullYear()} MacroSnap. Nutrition values are estimates, not medical advice.</p>

@@ -64,7 +64,7 @@ Kwop: plans saved (option B) and `/checkout` verified to return a Whop embed.
 - Then: Google sign-in (set `NEXT_PUBLIC_GOOGLE_AUTH=1` once enabled), run `npm run e2e` against the live URL, POST KWOP_API/connect with the production URL, security pass (RLS test with two users).
 
 ### Dev notes
-- Example plates in `public/examples/*.svg` are illustrations (no stock-photo host was reachable); swap for real photos with the same names (.jpg) and update `EXAMPLES` in `components/landing/Scanner.tsx`.
+- Example plates on the landing scanner are real photos (`public/examples/*.jpg`, Wikimedia Commons, credited at /credits). The SVG illustrations are only used inside the VSL / demo animations.
 - Locked results never send numbers to the browser (`lib/meals.ts` `toView`).
 - `scripts/shot.mjs` (screenshots), `scripts/flow-shot.mjs` (funnel states with a mocked AI answer, dev only), `tests/e2e.spec.ts` (real funnel, needs live services).
 
@@ -75,6 +75,7 @@ Kwop: plans saved (option B) and `/checkout` verified to return a Whop embed.
 - Gemini billing enabled 2026-11-26 (paid tier); live scans take ~5 s on gemini-3.8-flash. The free tier (20 requests/day) is too small for production.
 - Kwop connected (POST /connect ok): https://kwop.io/macrosnap-3/app → the app.
 - Verified live: e2e funnel 3× on phone and computer (Whop checkout iframe loads in the sheet, never paid); RLS check with a second user (no cross-user reads/writes, photos private).
-- Left to do: Google sign-in (owner creates the OAuth client, then PATCH config/auth + NEXT_PUBLIC_GOOGLE_AUTH=1 and redeploy); Lighthouse pass; real food photos for the examples.
+- AI accuracy check 2026-11-26 (31 real photos via owner-only `/api/admin/analyze`, bearer CRON_SECRET): 29/31 dish names right, 2 close (omelette read as fried egg; chocolate smoothie bowl as chocolate pudding); 4–7 s each on gemini-3.8-flash. Average 1,193 input + ~430 output/thinking tokens ≈ $0.0025 per scan at 2026 prices ($0.005 from 2027-01-01).
+- Left to do: Google sign-in (owner creates the OAuth client, then PATCH config/auth + NEXT_PUBLIC_GOOGLE_AUTH=1 and redeploy); Lighthouse pass.
 - Note: the Whop checkout shows the owner's Whop store name ("Whop Wealth Academy") as the seller.
 - Test account created on live: livecheck+1795730387788@macrosnap-test.com.
