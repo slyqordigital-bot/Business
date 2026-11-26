@@ -34,7 +34,7 @@ export type Plate = z.infer<typeof PlateSchema> & {
 const responseSchema = {
   type: Type.OBJECT,
   properties: {
-    is_food: { type: Type.BOOLEAN, description: "false if the photo shows no food or drink" },
+    is_food: { type: Type.BOOLEAN, description: "true when any food or drink is visible, including drawings or illustrations of a meal; false only when there is no food at all" },
     dish: { type: Type.STRING, description: "Short everyday US name of the whole meal, e.g. 'chicken burrito bowl'" },
     items: {
       type: Type.ARRAY,
@@ -66,7 +66,7 @@ const responseSchema = {
 };
 
 const PROMPT = `You are a registered dietitian estimating the nutrition of a meal from one photo.
-List every distinct food or drink you can see (sauces and oils count when visible). Estimate each edible portion in grams from visual cues (plate size ~26 cm, utensils, hands), then its calories, protein, carbs and fat using USDA FoodData Central values.
+The image may be a photo or a drawing of a meal: treat both the same. List every distinct food or drink you can see (sauces and oils count when visible). Estimate each edible portion in grams from visual cues (plate size ~26 cm, utensils, hands), then its calories, protein, carbs and fat using USDA FoodData Central values.
 Be realistic, not optimistic: restaurant portions are large, oil and dressing add fat. Use US English names. Never judge the person or their body.`;
 
 let modelsCache: string[] | null = null;
