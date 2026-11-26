@@ -4,6 +4,23 @@ import { cn } from "@/lib/utils";
 
 export type Pin = { name: string; x: number; y: number };
 
+/** Keeps labels inside the frame and pushes overlapping ones apart (top to bottom). */
+function layout(pins: Pin[]) {
+  const placed: { name: string; x: number; y: number }[] = [];
+  const sorted = pins.map((p) => ({ ...p, x: Math.min(0.8, Math.max(0.2, p.x)), y: Math.min(0.88, Math.max(0.12, p.y)) })).sort((a, b) => a.y - b.y);
+  for (const p of sorted) {
+    let y = p.y;
+    for (let guard = 0; guard < 12; guard++) {
+      const hit = placed.find((q) => Math.abs(q.x - p.x) < 0.34 && Math.abs(q.y - y) < 0.085);
+      if (!hit) break;
+      y = hit.y + 0.09;
+    }
+    if (y > 0.9) y = 0.9 - 0.09 * placed.filter((q) => q.y > 0.8).length;
+    placed.push({ name: p.name, x: p.x, y });
+  }
+  return placed;
+}
+
 /** The signature scan frame: corner brackets, a lime scan line, scan points and pinned food labels. */
 export function ScanFrame({ src, scanning, pins = [], className, alt = "Your meal" }: { src: string; scanning?: boolean; pins?: Pin[]; className?: string; alt?: string }) {
   const reduce = useReducedMotion();
@@ -28,12 +45,12 @@ export function ScanFrame({ src, scanning, pins = [], className, alt = "Your mea
         </>
       )}
       <AnimatePresence>
-        {pins.map((p, i) => (
+        {layout(pins).map((p, i) => (
           <motion.span key={p.name + i}
             initial={reduce ? false : { opacity: 0, y: 6, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.15 * i, type: "spring", stiffness: 400, damping: 26 }}
             className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-cream/95 py-1 pl-1.5 pr-2.5 text-[12px] font-medium text-ink shadow-lg"
-            style={{ left: `${Math.min(85, Math.max(15, p.x * 100))}%`, top: `${Math.min(90, Math.max(10, p.y * 100))}%` }}>
+            style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}>
             <span className="mr-1.5 inline-block size-2 rounded-full bg-tomato align-middle" />{p.name}
           </motion.span>
         ))}
