@@ -116,12 +116,14 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
 
   // newest first; the model that last answered goes first; each attempt is time-boxed so a busy model falls back
   const all = await flashModels(ai);
-  const order = [...new Set([...(lastGood ? [lastGood] : []), ...all.slice(0, 3)])];
+  // newest first, then the long-standing 2.5 Flash as a dependable fallback, then the next-newest
+  const order = [...new Set([...(lastGood ? [lastGood] : []), all[0], ...(process.env.GEMINI_MODEL ? [] : ["gemini-2.5-flash"]), ...all.slice(1, 2)])];
   const deadline = Date.now() + 50_000;
   let lastErr: unknown;
   for (const model of order) {
     const left = deadline - Date.now();
     if (left < 6_000) break;
+    const t0 = Date.now();
     try {
       const res = await ai.models.generateContent({
         model,
@@ -136,12 +138,13 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
           responseSchema,
           temperature: 0.2,
           thinkingConfig: thinking(model),
-          abortSignal: AbortSignal.timeout(Math.min(20_000, left)),
+          abortSignal: AbortSignal.timeout(Math.min(16_000, left)),
         },
       });
       const parsed = PlateSchema.parse(JSON.parse(res.text || "{}"));
       if (!parsed.is_food || parsed.items.length === 0) throw new AiError("not_food");
       lastGood = model;
+      console.log("[ai] ok", model, `${Date.now() - t0} ms`);
       const items = parsed.items.map((i) => ({
         ...i,
         grams: Math.round(i.grams),
@@ -153,7 +156,7 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
       return { ...parsed, items, totals: sumItems(items) };
     } catch (e) {
       if (e instanceof AiError) throw e;
-      console.warn("[ai] model failed, trying the next one", model, (e as Error)?.message?.slice(0, 160));
+      console.warn("[ai] model failed, trying the next one", model, `${Date.now() - t0} ms`, (e as Error)?.message?.slice(0, 160));
       if (lastGood === model) lastGood = null;
       lastErr = e;
     }
