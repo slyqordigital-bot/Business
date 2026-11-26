@@ -26,7 +26,7 @@ export function AccountPanel({ email, name, level, plan, status, until, used, li
   }
   async function logout() { await supabaseBrowser()?.auth.signOut(); location.assign("/"); }
 
-  const card = "recipe-card p-5";
+  const card = "hud p-5";
   return (
     <div className="space-y-4">
       <section className={card}>
@@ -40,16 +40,16 @@ export function AccountPanel({ email, name, level, plan, status, until, used, li
         <p className="text-[13px] text-fg-soft">Plan and billing</p>
         {plan ? (
           <>
-            <p className="mt-1 font-serif text-[24px] font-semibold">{plan}</p>
-            <p className="text-[14px] text-fg-soft">{used} of {limit} scans used this period{until ? ` · ${canceled ? "ends" : "renews"} ${new Date(until).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}` : ""}</p>
+            <p className="mt-1 font-display text-[30px] font-bold uppercase">{plan}</p>
+            <p className="text-[14px] text-fg-soft">{used} of {limit} quests cleared this period{until ? ` · ${canceled ? "ends" : "renews"} ${new Date(until).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}` : ""}</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              {level < 3 && <button onClick={() => funnel.openUpgrade({ level: level as 1 | 2 })} className="rounded-full bg-fg px-4 py-2.5 text-[14px] font-semibold text-bg">Change plan</button>}
+              {level < 3 && <button onClick={() => funnel.openUpgrade({ level: level as 1 | 2 })} className="rounded-full bg-lime px-4 py-2.5 text-[14px] font-semibold text-void">Change plan</button>}
               {!canceled && cancel === "idle" && <button onClick={() => setCancel("confirm")} className="rounded-full px-4 py-2.5 text-[14px] font-semibold ring-1 ring-line">Cancel my subscription</button>}
             </div>
             {cancel === "confirm" && (
               <div className="mt-4 rounded-[14px] bg-surface-2 p-4 text-[14px]">
                 <p>You keep {plan} until the end of this period. Then no more charges.</p>
-                <div className="mt-3 flex gap-2"><button onClick={doCancel} className="rounded-full bg-tomato px-4 py-2 font-semibold text-white">Yes, cancel</button><button onClick={() => setCancel("idle")} className="rounded-full px-4 py-2 font-semibold ring-1 ring-line">Keep my plan</button></div>
+                <div className="mt-3 flex gap-2"><button onClick={doCancel} className="rounded-full bg-pink px-4 py-2 font-semibold text-void">Yes, cancel</button><button onClick={() => setCancel("idle")} className="rounded-full px-4 py-2 font-semibold ring-1 ring-line">Keep my plan</button></div>
               </div>
             )}
             {cancel === "busy" && <p className="mt-3 text-[14px] text-fg-soft">Canceling…</p>}
@@ -57,25 +57,25 @@ export function AccountPanel({ email, name, level, plan, status, until, used, li
           </>
         ) : (
           <>
-            <p className="mt-1 font-serif text-[24px] font-semibold">Free account</p>
-            <p className="text-[14px] text-fg-soft">Your meals are saved. Pick a plan to see their macros.</p>
-            <Link href="/pricing" className="mt-4 inline-block rounded-full bg-tomato px-5 py-2.5 text-[14px] font-semibold text-white">See plans</Link>
+            <p className="mt-1 font-display text-[30px] font-bold uppercase">Free account</p>
+            <p className="text-[14px] text-fg-soft">Your Snack Quest is saved. Pick a plan to unlock it.</p>
+            <Link href="/start" className="mt-4 inline-block rounded-full bg-lime px-5 py-2.5 text-[14px] font-semibold text-void">Unlock my quests</Link>
           </>
         )}
       </section>
 
       <section className={card}>
         <p className="text-[13px] text-fg-soft">Your data</p>
-        <p className="mt-1 text-[14px]">Meal photos are stored privately in your account. Only you can see them.</p>
+        <p className="mt-1 text-[14px]">Your quest photos are stored privately in your account. Only you can see them. Points, quests, sessions and rewards are linked to your account only.</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <button onClick={logout} className="flex items-center gap-2 rounded-full px-4 py-2.5 text-[14px] font-semibold ring-1 ring-line"><LogOut className="size-4" />Log out</button>
-          {del === "idle" && <button onClick={() => setDel("confirm")} className="rounded-full px-4 py-2.5 text-[14px] font-semibold text-tomato ring-1 ring-tomato/30">Delete my account</button>}
+          {del === "idle" && <button onClick={() => setDel("confirm")} className="rounded-full px-4 py-2.5 text-[14px] font-semibold text-pink ring-1 ring-pink/30">Delete my account</button>}
         </div>
         {(del === "confirm" || del === "busy" || del === "error") && (
-          <div className="mt-4 rounded-[14px] bg-tomato/10 p-4 text-[14px]">
-            <p>This deletes your account, every meal and every photo, for good.{plan ? " Your subscription is canceled too." : ""}</p>
-            {del === "error" && <p className="mt-2 text-tomato">That didn&apos;t work. Try again.</p>}
-            <div className="mt-3 flex gap-2"><button disabled={del === "busy"} onClick={doDelete} className="rounded-full bg-tomato px-4 py-2 font-semibold text-white">Delete everything</button><button onClick={() => setDel("idle")} className="rounded-full px-4 py-2 font-semibold ring-1 ring-line">Keep my account</button></div>
+          <div className="mt-4 rounded-[14px] bg-pink/10 p-4 text-[14px]">
+            <p>This deletes your account, your points, every quest and every photo, for good. Rewards not shipped yet are canceled.{plan ? " Your subscription is canceled too." : ""}</p>
+            {del === "error" && <p className="mt-2 text-pink">That didn&apos;t work. Try again.</p>}
+            <div className="mt-3 flex gap-2"><button disabled={del === "busy"} onClick={doDelete} className="rounded-full bg-pink px-4 py-2 font-semibold text-void">Delete everything</button><button onClick={() => setDel("idle")} className="rounded-full px-4 py-2 font-semibold ring-1 ring-line">Keep my account</button></div>
           </div>
         )}
       </section>

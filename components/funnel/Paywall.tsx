@@ -20,9 +20,9 @@ export type Period = "month" | "year";
 const money = (c: number) => `$${(c / 100).toFixed(2)}`;
 
 const FAQ = [
-  { q: "Will it work with my food?", a: "Yes, for home cooking, takeout and restaurant plates. Snap from above in good light. You can fix any portion in one tap if your serving was bigger or smaller." },
+  { q: "Will it work with my games?", a: "Yes. Quests work with any game on any platform: you prove them with one photo of your snack and screen. Steam games sync playtime automatically; console, Epic and mobile games count with the session timer." },
   { q: "Can I cancel anytime?", a: "Yes. Account → Billing → Cancel my subscription. Two taps, no email, no call. You keep your plan until the end of the period you paid for." },
-  { q: "What happens right after I pay?", a: "This meal unlocks right here: calories, protein, carbs and fat for every food. It's saved to today's log, and you can snap your next meal right away." },
+  { q: "What happens right after I pay?", a: "Your whole quest run unlocks right here, with your 30-day projection. Clear your first quest tonight and the points land in your balance right away." },
 ];
 
 export function usePlans() {
@@ -45,10 +45,10 @@ function PlanRows({ plans, selected, setSelected, period, idPrefix }: { plans: C
         return (
           <button key={p.id} type="button" role="radio" aria-checked={on} onClick={() => setSelected(p.id)} data-testid={`${idPrefix}-plan-${p.level}`}
             className={cn("relative flex w-full items-center gap-3.5 rounded-[18px] border-2 bg-surface px-4 py-4 text-left transition active:scale-[0.99]",
-              on ? "border-tomato shadow-[0_8px_30px_-12px_rgb(229_72_47/0.45)]" : "border-line hover:border-fg/20")}>
-            {p.featured && <span className="absolute -top-2.5 left-4 rounded-full bg-tomato px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">Most popular</span>}
-            <span className={cn("grid size-[22px] shrink-0 place-items-center rounded-full border-2 transition", on ? "border-tomato bg-tomato" : "border-fg/25")}>
-              {on && <span className="size-2 rounded-full bg-white" />}
+              on ? "border-lime shadow-[0_8px_30px_-12px_rgb(200_255_61/0.35)]" : "border-line hover:border-fg/20")}>
+            {p.featured && <span className="absolute -top-2.5 left-4 rounded-full bg-lime px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-void">Most popular</span>}
+            <span className={cn("grid size-[22px] shrink-0 place-items-center rounded-full border-2 transition", on ? "border-lime bg-lime" : "border-fg/25")}>
+              {on && <span className="size-2 rounded-full bg-void" />}
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-[17px] font-semibold leading-tight">{shortName(p.name)}</span>
@@ -56,7 +56,7 @@ function PlanRows({ plans, selected, setSelected, period, idPrefix }: { plans: C
               <span className="mt-0.5 block text-[13px] text-fg-soft">{TAGS[p.level]}</span>
             </span>
             <span className="text-right">
-              <span className="block font-serif text-[26px] font-semibold leading-none tracking-[-0.02em]">{yearly ? p.yearly!.per_day : p.per_day}</span>
+              <span className="block font-display text-[30px] font-bold leading-none tracking-[-0.01em] tabular">{yearly ? p.yearly!.per_day : p.per_day}</span>
               <span className="text-[12px] text-fg-soft">/ day</span>
             </span>
           </button>
@@ -101,8 +101,8 @@ export function Paywall({ title, line, onContinue, busy, notice, currentLevel = 
 
   const ContinueBtn = ({ floating }: { floating?: boolean }) => (
     <button type="button" disabled={!plan || busy} onClick={() => plan && onContinue(plan, period)} data-testid={floating ? undefined : "paywall-continue"}
-      className={cn("flex h-[58px] w-full items-center justify-center rounded-full bg-tomato text-[17px] font-semibold text-white transition active:scale-[0.97] disabled:opacity-60",
-        floating && "shadow-[0_10px_30px_-8px_rgb(229_72_47/0.6)]")}>
+      className={cn("flex h-[58px] w-full items-center justify-center rounded-full bg-lime text-[17px] font-semibold text-white transition active:scale-[0.97] disabled:opacity-60",
+        floating && "shadow-[0_10px_30px_-8px_rgb(200_255_61/0.5)]")}>
       {plan ? `Continue with ${shortName(plan.name)}` : "Continue"}
     </button>
   );
@@ -110,7 +110,7 @@ export function Paywall({ title, line, onContinue, busy, notice, currentLevel = 
   return (
     <div className="relative">
       <div className="px-5 pb-8 pt-16 md:px-7">
-        <h2 className="font-serif text-[30px] font-semibold leading-[1.08] tracking-[-0.03em]" data-testid="paywall-title">{title}</h2>
+        <h2 className="font-display text-[32px] font-bold uppercase leading-[1] tracking-[-0.01em]" data-testid="paywall-title">{title}</h2>
         {line && <p className="mt-2 text-[15px] text-fg-soft">{line}</p>}
 
         <div className="mt-8 flex items-center justify-between">
@@ -119,8 +119,8 @@ export function Paywall({ title, line, onContinue, busy, notice, currentLevel = 
             <div className="flex rounded-full bg-surface-2 p-1 text-[13px] font-medium" role="tablist">
               {(["month", "year"] as const).map((p) => (
                 <button key={p} role="tab" aria-selected={period === p} onClick={() => setPeriod(p)}
-                  className={cn("rounded-full px-3 py-1.5 transition", period === p ? "bg-surface shadow-sm" : "text-fg-soft")}>
-                  {p === "month" ? "Monthly" : <>Yearly <span className="text-olive">−20%</span></>}
+                  className={cn("rounded-full px-3 py-1.5 transition", period === p ? "bg-lime text-void shadow-sm" : "text-fg-soft")}>
+                  {p === "month" ? "Monthly" : <>Yearly <span className={period === p ? "" : "text-lime"}>−20%</span></>}
                 </button>
               ))}
             </div>
@@ -134,7 +134,7 @@ export function Paywall({ title, line, onContinue, busy, notice, currentLevel = 
           {plans && plans.length > 0 && <PlanRows plans={plans} selected={selected} setSelected={setSelected} period={period} idPrefix="top" />}
         </div>
 
-        {notice && <p className="mt-4 rounded-xl bg-lime/30 p-3 text-[14px] font-medium" role="status">{notice}</p>}
+        {notice && <p className="mt-4 rounded-xl bg-lime/15 text-lime p-3 text-[14px] font-medium" role="status">{notice}</p>}
 
         <div ref={btnRef} className="mt-5">
           <ContinueBtn />
@@ -152,14 +152,14 @@ export function Paywall({ title, line, onContinue, busy, notice, currentLevel = 
             <p className="text-[15px] font-semibold">What you unlock with {shortName(plan.name)}</p>
             <ul className="mt-3 space-y-2.5">
               {UNLOCKS[plan.level].map((u) => (
-                <li key={u} className="flex gap-2.5 text-[15px]"><Check className="mt-0.5 size-[18px] shrink-0 text-olive" strokeWidth={2.5} />{u}</li>
+                <li key={u} className="flex gap-2.5 text-[15px]"><Check className="mt-0.5 size-[18px] shrink-0 text-lime" strokeWidth={2.5} />{u}</li>
               ))}
             </ul>
           </div>
         )}
 
         <div className="mt-6 flex items-start gap-3 rounded-[18px] border border-line p-4 text-[14px]">
-          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-olive" />
+          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-lime" />
           <p><span className="font-semibold">Cancel in 2 taps.</span> No call, no email. You keep your plan until the end of the period you paid for.</p>
         </div>
 
@@ -185,7 +185,7 @@ export function Paywall({ title, line, onContinue, busy, notice, currentLevel = 
           </div>
         )}
 
-        <p className="mt-6 text-center text-[12px] leading-relaxed text-fg-soft">Renews automatically until canceled. Prices in USD. Macros are AI estimates from a photo, not medical advice.</p>
+        <p className="mt-6 text-center text-[12px] leading-relaxed text-fg-soft">Renews automatically until canceled. Prices in USD. Rewards are redeemed with points, never with cash.</p>
       </div>
 
       <AnimatePresence>

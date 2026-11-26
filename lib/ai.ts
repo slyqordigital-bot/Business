@@ -2,123 +2,145 @@ import "server-only";
 import { GoogleGenAI, Type } from "@google/genai";
 import { z } from "zod";
 
-/** The only place MacroSnap talks to an AI model (Google Gemini Flash). */
-const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
+/**
+ * The only place SnackQuest talks to an AI model (Google Gemini Flash-Lite: fast, reads text and photos).
+ * Each model has its own quota, so when one is busy or out of quota the next one answers.
+ */
+const MODELS = [process.env.GEMINI_MODEL, "gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"].filter(Boolean) as string[];
 
-export const ItemSchema = z.object({
-  name: z.string().min(1).max(60),
-  grams: z.number().min(0).max(3000),
-  kcal: z.number().min(0).max(5000),
-  protein: z.number().min(0).max(400),
-  carbs: z.number().min(0).max(600),
-  fat: z.number().min(0).max(400),
-  // position of the food on the photo, 0..1, for the pinned labels
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
+export type Answers = { game?: string; snack?: string; when?: string; goal?: string; tag?: string; steamGames?: string[] };
+
+export const QuestSchema = z.object({
+  title: z.string().min(2).max(60),
+  rule: z.string().min(4).max(220),
+  proof: z.string().min(4).max(140),
+  rarity: z.enum(["common", "rare", "legendary"]),
 });
+export type GenQuest = z.infer<typeof QuestSchema>;
 
-export const PlateSchema = z.object({
-  is_food: z.boolean(),
-  dish: z.string().max(60),
-  items: z.array(ItemSchema).max(12),
-  insight: z.string().max(160),
-  confidence: z.enum(["high", "medium", "low"]),
-});
-
-export type Item = z.infer<typeof ItemSchema>;
-export type Plate = z.infer<typeof PlateSchema> & {
-  totals: { kcal: number; protein: number; carbs: number; fat: number };
-};
-
-const responseSchema = {
+const questItem = {
   type: Type.OBJECT,
   properties: {
-    is_food: { type: Type.BOOLEAN, description: "false if the photo shows no food or drink" },
-    dish: { type: Type.STRING, description: "Short everyday US name of the whole meal, e.g. 'chicken burrito bowl'" },
-    items: {
-      type: Type.ARRAY,
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          name: { type: Type.STRING, description: "Simple food name, lowercase, e.g. 'grilled chicken breast'" },
-          grams: { type: Type.NUMBER, description: "Estimated edible portion weight in grams" },
-          kcal: { type: Type.NUMBER },
-          protein: { type: Type.NUMBER, description: "grams" },
-          carbs: { type: Type.NUMBER, description: "grams" },
-          fat: { type: Type.NUMBER, description: "grams" },
-          x: { type: Type.NUMBER, description: "Horizontal center of this food on the photo, 0 = left, 1 = right" },
-          y: { type: Type.NUMBER, description: "Vertical center of this food on the photo, 0 = top, 1 = bottom" },
-        },
-        required: ["name", "grams", "kcal", "protein", "carbs", "fat", "x", "y"],
-        propertyOrdering: ["name", "grams", "kcal", "protein", "carbs", "fat", "x", "y"],
-      },
-    },
-    insight: {
-      type: Type.STRING,
-      description:
-        "One short, kind, useful sentence about this plate that does NOT contain any number, e.g. 'Most of the protein comes from the grilled chicken.'",
-    },
-    confidence: { type: Type.STRING, enum: ["high", "medium", "low"] },
+    title: { type: Type.STRING, description: "Punchy quest name, 2 to 5 words, Title Case, e.g. 'Crust Shield Protocol'" },
+    rule: { type: Type.STRING, description: "What to do, one or two short sentences a 12-year-old gets, tied to the game and the snack" },
+    proof: { type: Type.STRING, description: "What the photo must show to prove it, e.g. 'Your pizza slice next to the victory screen'" },
+    rarity: { type: Type.STRING, enum: ["common", "rare", "legendary"] },
   },
-  required: ["is_food", "dish", "items", "insight", "confidence"],
-  propertyOrdering: ["is_food", "dish", "items", "insight", "confidence"],
+  required: ["title", "rule", "proof", "rarity"],
+  propertyOrdering: ["title", "rule", "proof", "rarity"],
 };
 
-const PROMPT = `You are a registered dietitian estimating the nutrition of a meal from one photo.
-List every distinct food or drink you can see (sauces and oils count when visible). Estimate each edible portion in grams from visual cues (plate size ~26 cm, utensils, hands), then its calories, protein, carbs and fat using USDA FoodData Central values.
-Be realistic, not optimistic: restaurant portions are large, oil and dressing add fat. Use US English names. Never judge the person or their body.`;
+const SAFETY = `Safety rules (never break them): the player may be a teen. Never ask to eat or drink a lot, fast, or as a dare; never more than one normal serving; no energy-drink chugging (if the snack is energy drinks, quests are about one can, water breaks, or swapping one for water); no food waste, no mess on devices, nothing dangerous, nothing that hurts anyone's health, no allergies talk. Healthy swaps are welcome. Silly and absurd is great; harmful is never OK. Never use real brand logos or claim any partnership with a game.`;
 
 export function aiReady() {
   return Boolean(process.env.GEMINI_API_KEY);
 }
 
 export class AiError extends Error {
-  constructor(public code: "not_configured" | "not_food" | "failed", msg?: string) {
+  constructor(public code: "not_configured" | "failed" | "not_snack", msg?: string) {
     super(msg || code);
   }
 }
 
-export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> {
+function client() {
   if (!aiReady()) throw new AiError("not_configured");
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY!, apiVersion: "v1beta" });
+}
 
-  let lastErr: unknown;
-  for (let attempt = 0; attempt < 2; attempt++) {
+/** Tries each model in turn (quota, outage or a bad answer → the next one). */
+async function withRetry<T>(fn: (model: string) => Promise<T>, label: string): Promise<T> {
+  let last: unknown;
+  for (const model of [...new Set(MODELS)]) {
     try {
-      const res = await ai.models.generateContent({
-        model: MODEL,
-        contents: [
-          {
-            role: "user",
-            parts: [{ inlineData: { mimeType: mime, data: image.toString("base64") } }, { text: PROMPT }],
-          },
-        ],
-        config: { responseMimeType: "application/json", responseSchema, temperature: 0.2 },
-      });
-      const parsed = PlateSchema.parse(JSON.parse(res.text || "{}"));
-      if (!parsed.is_food || parsed.items.length === 0) throw new AiError("not_food");
-      const items = parsed.items.map((i) => ({
-        ...i,
-        grams: Math.round(i.grams),
-        kcal: Math.round(i.kcal),
-        protein: Math.round(i.protein * 10) / 10,
-        carbs: Math.round(i.carbs * 10) / 10,
-        fat: Math.round(i.fat * 10) / 10,
-      }));
-      return { ...parsed, items, totals: sumItems(items) };
+      return await fn(model);
     } catch (e) {
       if (e instanceof AiError) throw e;
-      lastErr = e;
+      last = e;
     }
   }
-  console.error("[ai] analyzePlate failed", lastErr);
+  console.error(`[ai] ${label} failed`, last);
   throw new AiError("failed");
 }
 
-export function sumItems(items: Pick<Item, "kcal" | "protein" | "carbs" | "fat">[]) {
-  const t = items.reduce(
-    (a, i) => ({ kcal: a.kcal + i.kcal, protein: a.protein + i.protein, carbs: a.carbs + i.carbs, fat: a.fat + i.fat }),
-    { kcal: 0, protein: 0, carbs: 0, fat: 0 },
-  );
-  return { kcal: Math.round(t.kcal), protein: Math.round(t.protein), carbs: Math.round(t.carbs), fat: Math.round(t.fat) };
+/** A batch of absurd, photo-provable snack quests built around the player's game, snack and schedule. */
+export async function generateQuests(a: Answers, count = 7, avoid: string[] = []): Promise<{ title: string; quests: GenQuest[] }> {
+  const ai = client();
+  const prompt = `You design "Snack Quests" for SnackQuest, a rewards app for US gamers who snack while they play.
+Player: plays ${a.game || "video games"}${a.steamGames?.length ? ` (also on Steam: ${a.steamGames.slice(0, 5).join(", ")})` : ""}; go-to snack: ${a.snack || "chips"}; plays: ${a.when || "evenings"}; wants to unlock: ${a.goal || "a headset"}${a.tag ? `; gamer tag: ${a.tag}` : ""}.
+Write ${count} quests, each a funny food-themed challenge done WHILE playing ${a.game || "their game"} (use real ${a.game || "game"} moments: matches, rounds, eliminations, builds, queues, respawns, wins). Each must be provable with ONE phone photo (the snack + the screen or setup). Mix: about 4 common, 2 rare, 1 legendary (harder, bigger moment). Different from each other${avoid.length ? ` and from these: ${avoid.slice(0, 20).join("; ")}` : ""}.
+Also a run title, 3 to 6 words, like "The Late-Night Pizza Run".
+Voice: hype, short, US gamer slang lightly (GG, clutch, W), never cringe, no emojis.
+${SAFETY}`;
+  return withRetry(async (model) => {
+    const res = await ai.models.generateContent({
+      model,
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.95,
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: { title: { type: Type.STRING }, quests: { type: Type.ARRAY, items: questItem } },
+          required: ["title", "quests"],
+          propertyOrdering: ["title", "quests"],
+        },
+      },
+    });
+    const j = z.object({ title: z.string().min(2).max(60), quests: z.array(QuestSchema).min(1) }).parse(JSON.parse(res.text || "{}"));
+    return { title: j.title, quests: j.quests.slice(0, count) };
+  }, "generateQuests");
+}
+
+export type Verdict = { ok: boolean; reason: string };
+
+/** Checks a quest's photo proof: is the snack there, does the scene match the quest? */
+export async function verifyProof(image: Buffer, mime: string, q: { title: string; rule: string; proof: string }): Promise<Verdict> {
+  const ai = client();
+  const prompt = `You are the friendly referee of SnackQuest. A player sends ONE photo to prove a snack quest.
+Quest: "${q.title}". Rule: ${q.rule}. The photo must show: ${q.proof}.
+Approve (ok = true) when the photo plausibly shows the snack (or drink) of the quest in a gaming context (screen, controller, keyboard, setup) or clearly matches the proof. Be generous with angles and lighting, but reject photos with no food or drink at all, screenshots of the internet, or totally unrelated pictures.
+reason: one short, upbeat sentence to the player (approve: hype what you see; reject: say exactly what to add to the photo). No emojis.`;
+  return withRetry(async (model) => {
+    const res = await ai.models.generateContent({
+      model,
+      contents: [{ role: "user", parts: [{ inlineData: { mimeType: mime, data: image.toString("base64") } }, { text: prompt }] }],
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.2,
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: { ok: { type: Type.BOOLEAN }, reason: { type: Type.STRING } },
+          required: ["ok", "reason"],
+          propertyOrdering: ["ok", "reason"],
+        },
+      },
+    });
+    return z.object({ ok: z.boolean(), reason: z.string().min(2).max(240) }).parse(JSON.parse(res.text || "{}"));
+  }, "verifyProof");
+}
+
+/** Legend: a custom quest built around a photo of the player's own snack. */
+export async function questFromSnackPhoto(image: Buffer, mime: string, a: Answers): Promise<GenQuest> {
+  const ai = client();
+  const prompt = `Look at this snack photo. If it shows no food or drink, set is_snack false. Otherwise design ONE funny Snack Quest around exactly this snack, done while playing ${a.game || "their game"}, provable with one photo. Rarity rare.
+${SAFETY}`;
+  return withRetry(async (model) => {
+    const res = await ai.models.generateContent({
+      model,
+      contents: [{ role: "user", parts: [{ inlineData: { mimeType: mime, data: image.toString("base64") } }, { text: prompt }] }],
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.9,
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: { is_snack: { type: Type.BOOLEAN }, quest: questItem },
+          required: ["is_snack", "quest"],
+          propertyOrdering: ["is_snack", "quest"],
+        },
+      },
+    });
+    const j = JSON.parse(res.text || "{}");
+    if (!j.is_snack) throw new AiError("not_snack");
+    return QuestSchema.parse(j.quest);
+  }, "questFromSnackPhoto");
 }

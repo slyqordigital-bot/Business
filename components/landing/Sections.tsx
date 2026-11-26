@@ -1,40 +1,42 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Camera, Check, ChevronDown, Clock, Flame, ListChecks, PieChart, ScanLine, Search, Scale, X } from "lucide-react";
-import { Phone } from "./Phone";
+import { Camera, Check, ChevronDown, Flame, Gamepad2, Gift, Headphones, Link2, Package, Swords, Timer, X } from "lucide-react";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/Reveal";
-import { MacroRing } from "@/components/ui/MacroRing";
+import { MainButton } from "@/components/ui/MainButton";
 import { CountUp } from "@/components/ui/CountUp";
 import { LogoMark } from "@/components/ui/Logo";
+import { Phone } from "./Phone";
 import { cn } from "@/lib/utils";
 
-function Label({ children, className }: { children: string; className?: string }) {
-  return <p className={cn("label-mono text-olive", className)}>[ {children} ]</p>;
+const CTA = "Start my Snack Quest";
+
+function Label({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <p className={cn("label-mono", className)}>[ {children} ]</p>;
 }
 function H2({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <h2 className={cn("title-xl mt-4 text-[40px] md:text-[60px]", className)}>{children}</h2>;
+  return <h2 className={cn("title-xl text-[40px] md:text-[64px]", className)}>{children}</h2>;
 }
 
-/* ───────── the problem ───────── */
+/* ───────── the problem (light) ───────── */
 export function Problem() {
   const items = [
-    { icon: Clock, t: "Logging takes forever", d: "Search, scroll, pick, adjust. For every single food. Three meals a day." },
-    { icon: Search, t: "The database is a mess", d: "Forty entries for “chicken bowl”, from 88 to 1,240 calories. Which one is yours?" },
-    { icon: Flame, t: "So the streak dies", d: "It's not you. When logging is a chore, nobody keeps it up past week one." },
+    { icon: Headphones, big: "$129", t: "Gaming gear is too expensive", d: "A good headset costs more than most games. A controller, a keyboard… it adds up fast." },
+    { icon: Package, big: "3 bags", t: "Snacking while playing feels like a waste", d: "You eat chips through every session. Nothing to show for it but crumbs on the desk." },
+    { icon: Timer, big: "4h", t: "No motivation during long grinds", d: "The same queue, the same match, again. Long sessions need a little side quest." },
   ];
   return (
-    <section className="bg-cream px-4 py-16 text-ink md:py-28">
+    <section className="light px-4 py-16 md:py-28">
       <div className="mx-auto max-w-[1120px]">
-        <Reveal><Label>the problem</Label><H2>Counting macros<br /><span className="text-ink-soft">shouldn&apos;t feel like homework.</span></H2></Reveal>
-        <Stagger className="mt-10 grid gap-4 md:mt-14 md:grid-cols-3">
-          {items.map(({ icon: I, t, d }) => (
-            <StaggerItem key={t} className="recipe-card relative p-6">
-              <span className="absolute right-5 top-5 size-3 rounded-full bg-cream ring-1 ring-ink/10" aria-hidden />
-              <span className="grid size-11 place-items-center rounded-[14px] bg-tomato/10 text-tomato"><I className="size-5" /></span>
-              <h3 className="mt-5 font-serif text-[22px] font-semibold tracking-[-0.02em]">{t}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{d}</p>
+        <Reveal><Label className="text-violet">the problem</Label></Reveal>
+        <Reveal delay={0.05}><H2 className="mt-3 max-w-[820px]">You already snack and play. <span className="title-fade">You just don&apos;t get anything for it.</span></H2></Reveal>
+        <Stagger className="mt-10 grid gap-4 md:grid-cols-3">
+          {items.map(({ icon: I, big, t, d }) => (
+            <StaggerItem key={t} className="rounded-[20px] border border-line bg-surface p-6 shadow-[0_20px_50px_-30px_rgb(14_11_24/0.25)]">
+              <div className="flex items-center justify-between"><I className="size-6 text-violet" /><span className="font-display text-[34px] font-bold text-ink/90">{big}</span></div>
+              <h3 className="mt-6 text-[19px] font-semibold leading-snug">{t}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-fg-soft">{d}</p>
             </StaggerItem>
           ))}
         </Stagger>
@@ -43,217 +45,167 @@ export function Problem() {
   );
 }
 
-/* ───────── how it works: a phone looping snap → analyze → log ───────── */
-const HOW = [
-  { icon: Camera, t: "Snap", d: "Take a quick photo of your meal or snack. From above works best." },
-  { icon: ScanLine, t: "Analyze", d: "MacroSnap finds each food, estimates the portion and does the math." },
-  { icon: ListChecks, t: "Log", d: "Check the breakdown, fix a portion if you want, and save it in one tap." },
-];
+/* ───────── how it works: 3 animated phones (dark) ───────── */
+function ConnectScreen() {
+  const reduce = useReducedMotion();
+  const [n, setN] = useState(reduce ? 3 : 0);
+  useEffect(() => { if (reduce) return; const i = setInterval(() => setN((x) => (x + 1) % 5), 1100); return () => clearInterval(i); }, [reduce]);
+  const games = ["Fortnite", "Valorant", "Minecraft"];
+  return (
+    <div className="px-4 pt-6">
+      <p className="label-mono text-[9px] text-cyan">[ game sync ]</p>
+      <p className="mt-1 font-display text-[22px] font-bold uppercase leading-none">Link your games</p>
+      <div className="mt-4 space-y-2">
+        {games.map((g, i) => (
+          <div key={g} className="flex items-center gap-2.5 rounded-[12px] bg-white/5 p-2.5 ring-1 ring-white/10">
+            <Gamepad2 className="size-4 text-cyan" /><span className="flex-1 text-[13px] font-semibold">{g}</span>
+            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase transition", i < n ? "bg-lime text-void" : "bg-white/10 text-white/50")}>{i < n ? "Linked" : "Link"}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 rounded-[12px] bg-white/5 p-2.5 text-[11px] text-fg-soft ring-1 ring-white/10"><Timer className="mr-1 inline size-3.5 text-lime" />Session timer: 1 pt / 5 min</div>
+    </div>
+  );
+}
+function SnackScreen() {
+  const reduce = useReducedMotion();
+  const [ok, setOk] = useState(false);
+  useEffect(() => { if (reduce) { setOk(true); return; } const i = setInterval(() => setOk((x) => !x), 1800); return () => clearInterval(i); }, [reduce]);
+  return (
+    <div className="px-4 pt-6">
+      <p className="label-mono text-[9px] text-violet">[ quest 02 · rare ]</p>
+      <p className="mt-1 font-display text-[22px] font-bold uppercase leading-none">Chip Per Kill</p>
+      <p className="mt-1.5 text-[11px] text-fg-soft">One chip for every elimination. Snap the bag next to your score.</p>
+      <div className="relative mt-3 aspect-square overflow-hidden rounded-[14px] bg-gradient-to-br from-[#2a1650] to-[#0c0a16] ring-1 ring-white/10">
+        <div className="absolute left-[12%] top-[16%] h-[40%] w-[60%] rounded-md bg-cyan/20 ring-1 ring-cyan/40" />
+        <div className="absolute bottom-[12%] right-[12%] h-[46%] w-[36%] rotate-6 rounded-[10px] bg-gradient-to-b from-[#ffc53d] to-[#e8742f]" />
+        <div className="absolute inset-x-0 h-0.5 animate-[floaty_2s_ease-in-out_infinite] bg-lime shadow-[0_0_12px_var(--lime)]" style={{ top: "50%" }} />
+        <AnimatePresence>{ok && <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 grid place-items-center bg-void/50"><span className="rounded-full bg-lime px-3 py-1.5 font-display text-[16px] font-bold uppercase text-void">Cleared +60</span></motion.div>}</AnimatePresence>
+      </div>
+    </div>
+  );
+}
+function CollectScreen() {
+  const reduce = useReducedMotion();
+  const [v, setV] = useState(reduce ? 72 : 20);
+  useEffect(() => { if (reduce) return; const i = setInterval(() => setV((x) => (x >= 100 ? 20 : x + 8)), 450); return () => clearInterval(i); }, [reduce]);
+  return (
+    <div className="px-4 pt-6">
+      <p className="label-mono text-[9px] text-lime">[ reward shop ]</p>
+      <p className="mt-1 font-display text-[22px] font-bold uppercase leading-none">Collect</p>
+      {[["Wireless Controller", "20,000", v], ["$10 Steam Gift Card", "3,000", 100]].map(([n, c, w]) => (
+        <div key={n as string} className="mt-3 rounded-[12px] bg-white/5 p-2.5 ring-1 ring-white/10">
+          <div className="flex justify-between text-[12px] font-semibold"><span>{n}</span><span className="text-lime">{c}</span></div>
+          <div className="xp-track mt-2 h-1.5"><div className="xp-fill transition-all duration-500" style={{ width: `${Math.min(100, w as number)}%` }} /></div>
+        </div>
+      ))}
+      <div className="mt-3 flex items-center gap-2 rounded-[12px] bg-lime/10 p-2.5 text-[11px] text-lime ring-1 ring-lime/30"><Package className="size-3.5" />Gift card: code sent · Controller: processing</div>
+    </div>
+  );
+}
 
 export function HowItWorks() {
-  const reduce = useReducedMotion();
-  const [step, setStep] = useState(0);
-  useEffect(() => {
-    if (reduce) return;
-    const t = setInterval(() => setStep((s) => (s + 1) % 3), 2800);
-    return () => clearInterval(t);
-  }, [reduce]);
+  const steps = [
+    { n: "01", t: "Connect", d: "Link your gaming profile in one tap. Steam syncs playtime by itself; console and Epic games use the session timer.", s: <ConnectScreen /> },
+    { n: "02", t: "Snack & Play", d: "Accept funny food challenges while you queue. Snap your snack to prove it, and the AI referee checks it in seconds.", s: <SnackScreen /> },
+    { n: "03", t: "Collect", d: "Trade your points in the Reward Shop for gift cards and gear, then track every reward until it reaches you.", s: <CollectScreen /> },
+  ];
   return (
-    <section id="how" className="scroll-mt-20 bg-paper px-4 py-16 text-ink md:py-28">
-      <div className="mx-auto grid max-w-[1120px] items-center gap-12 md:grid-cols-2">
-        <div>
-          <Reveal><Label>how it works</Label><H2>Three taps.<br /><span className="text-ink-soft">That&apos;s the whole log.</span></H2></Reveal>
-          <ol className="mt-10 space-y-3">
-            {HOW.map(({ icon: I, t, d }, i) => (
-              <li key={t}>
-                <button onClick={() => setStep(i)} className={cn("flex w-full gap-4 rounded-[20px] p-4 text-left transition", step === i ? "bg-cream shadow-[0_10px_30px_-16px_rgb(29_26_21/0.4)]" : "opacity-60 hover:opacity-90")}>
-                  <span className={cn("grid size-11 shrink-0 place-items-center rounded-[14px] transition", step === i ? "bg-tomato text-white" : "bg-ink/5")}><I className="size-5" /></span>
-                  <span>
-                    <span className="font-mono text-[12px] text-ink-soft">0{i + 1}</span>
-                    <span className="ml-2 font-serif text-[21px] font-semibold tracking-[-0.02em]">{t}</span>
-                    <span className="mt-1 block text-[15px] leading-relaxed text-ink-soft">{d}</span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <Reveal className="relative">
-          <div className="absolute inset-0 -z-0 m-auto size-[340px] rounded-full bg-tomato/15 blur-3xl" />
-          <Phone className="relative">
-            <AnimatePresence mode="wait">
-              <motion.div key={step} className="h-full" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.35 }}>
-                {step === 0 && <PhoneSnap />}
-                {step === 1 && <PhoneScan />}
-                {step === 2 && <PhoneLog />}
-              </motion.div>
-            </AnimatePresence>
-          </Phone>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-function PhoneSnap() {
-  return (
-    <div className="relative h-full bg-black">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/examples/spaghetti.svg" alt="" className="h-[78%] w-full object-cover" />
-      <div className="pointer-events-none absolute inset-x-6 top-[14%] h-[52%]">
-        {["left-0 top-0 border-l-2 border-t-2", "right-0 top-0 border-r-2 border-t-2", "left-0 bottom-0 border-l-2 border-b-2", "right-0 bottom-0 border-r-2 border-b-2"].map((c) => <span key={c} className={cn("absolute size-6 rounded-sm border-lime", c)} />)}
-      </div>
-      <div className="absolute inset-x-0 bottom-0 flex h-[22%] items-center justify-center">
-        <span className="grid size-16 place-items-center rounded-full border-4 border-white"><span className="size-12 rounded-full bg-white" /></span>
-      </div>
-    </div>
-  );
-}
-function PhoneScan() {
-  return (
-    <div className="h-full bg-night px-4 pt-3 text-cream">
-      <div className="relative aspect-square overflow-hidden rounded-2xl">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/examples/spaghetti.svg" alt="" className="h-full w-full object-cover" />
-        <div className="animate-scanline absolute inset-x-1 h-[3px] rounded-full bg-lime shadow-[0_0_18px_4px_rgb(200_255_61/0.6)]" />
-      </div>
-      <p className="mt-4 font-serif text-[18px] font-semibold">Reading your plate…</p>
-      <ul className="mt-2 space-y-1.5 text-[12px] text-cream/80">
-        {["Finding every food", "Estimating portions", "Adding up macros"].map((s, i) => (
-          <li key={s} className="flex items-center gap-2"><span className={cn("grid size-4 place-items-center rounded-full", i < 2 ? "bg-lime text-night" : "bg-white/15")}>{i < 2 && <Check className="size-2.5" strokeWidth={3} />}</span>{s}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-function PhoneLog() {
-  return (
-    <div className="h-full px-4 pt-3">
-      <p className="text-[11px] text-ink-soft">Example · spaghetti & meatballs</p>
-      <p className="font-serif text-[34px] font-semibold leading-none">780<span className="ml-1 text-[13px] font-normal text-ink-soft">cal</span></p>
-      <div className="mt-3 flex justify-between">
-        {[["P", 36, 130, "#E5482F"], ["C", 92, 220, "#D9A441"], ["F", 28, 70, "#6B7B3A"]].map(([l, v, g, c]) => (
-          <MacroRing key={l as string} value={v as number} goal={g as number} color={c as string} size={62} stroke={6}>
-            <span className="text-[12px] font-semibold">{v}g</span>
-          </MacroRing>
-        ))}
-      </div>
-      <ul className="mt-3 space-y-1.5 text-[12px]">
-        {[["spaghetti", "350 cal"], ["meatballs", "310 cal"], ["tomato sauce", "90 cal"], ["parmesan", "30 cal"]].map(([n, c]) => (
-          <li key={n} className="flex justify-between rounded-lg bg-paper px-2.5 py-2"><span>{n}</span><span className="font-mono text-ink-soft">{c}</span></li>
-        ))}
-      </ul>
-      <div className="mt-3 rounded-full bg-tomato py-2.5 text-center text-[13px] font-semibold text-white">Save to today</div>
-    </div>
-  );
-}
-
-/* ───────── the product in action: one short loop per feature ───────── */
-export function Features() {
-  return (
-    <section id="features" className="scroll-mt-20 bg-night px-4 py-16 text-cream md:py-28">
+    <section id="how" className="scroll-mt-20 px-4 py-16 md:py-28">
       <div className="mx-auto max-w-[1120px]">
-        <Reveal><p className="label-mono text-lime">[ in action ]</p><h2 className="title-xl mt-4 text-[40px] md:text-[60px]">Everything your log needs.<br /><span className="title-fade">Nothing you have to type.</span></h2></Reveal>
-        <Stagger className="mt-10 grid gap-4 md:mt-14 md:grid-cols-2">
-          <FeatureCard icon={ScanLine} t="Photo recognition" d="Point, snap, done. Every food on the plate is found and named for you."><LoopScan /></FeatureCard>
-          <FeatureCard icon={PieChart} t="Macro breakdown" d="Calories, protein, carbs and fat, for the whole plate and for each food."><LoopBars /></FeatureCard>
-          <FeatureCard icon={ListChecks} t="Daily history" d="A clean log of every meal, by day. Edit a portion or delete in a tap."><LoopHistory /></FeatureCard>
-          <FeatureCard icon={Flame} t="Streak counter" d="See your streak grow and your macros trend over the weeks."><LoopStreak /></FeatureCard>
+        <Reveal><Label className="text-cyan">how it works</Label></Reveal>
+        <Reveal delay={0.05}><H2 className="mt-3">Three steps. <span className="title-fade">Zero extra effort.</span></H2></Reveal>
+        <Stagger className="mt-12 grid gap-10 md:grid-cols-3 md:gap-6">
+          {steps.map((s) => (
+            <StaggerItem key={s.n} className="text-center md:text-left">
+              <Phone dark className="w-[230px] md:mx-0">{s.s}</Phone>
+              <p className="label-mono mt-6 text-lime">step {s.n}</p>
+              <h3 className="mt-1 font-display text-[30px] font-bold uppercase leading-none">{s.t}</h3>
+              <p className="mx-auto mt-2 max-w-[340px] text-[15px] leading-relaxed text-fg-soft md:mx-0">{s.d}</p>
+            </StaggerItem>
+          ))}
         </Stagger>
       </div>
     </section>
   );
 }
-function FeatureCard({ icon: I, t, d, children }: { icon: typeof Camera; t: string; d: string; children: React.ReactNode }) {
-  return (
-    <StaggerItem className="overflow-hidden rounded-[24px] bg-night-2 ring-1 ring-white/[0.08]">
-      <div className="relative h-[220px] overflow-hidden border-b border-white/[0.06] bg-[radial-gradient(ellipse_at_top,rgb(200_255_61/0.08),transparent_70%)]">{children}</div>
-      <div className="p-6">
-        <div className="flex items-center gap-2.5"><I className="size-5 text-lime" /><h3 className="font-serif text-[22px] font-semibold tracking-[-0.02em]">{t}</h3></div>
-        <p className="mt-2 text-[15px] leading-relaxed text-cream/65">{d}</p>
-      </div>
-    </StaggerItem>
-  );
-}
-function useLoop(n: number, ms: number) {
+
+/* ───────── the product in action: 4 feature loops (light) ───────── */
+function LoopSync() {
   const reduce = useReducedMotion();
-  const [i, setI] = useState(0);
-  useEffect(() => { if (reduce) return; const t = setInterval(() => setI((x) => (x + 1) % n), ms); return () => clearInterval(t); }, [n, ms, reduce]);
-  return i;
-}
-function LoopScan() {
-  const i = useLoop(4, 1100);
-  const pins = [["sourdough toast", 38, 30], ["avocado", 52, 52], ["fried egg", 50, 44], ["cherry tomatoes", 74, 74]] as const;
+  const [m, setM] = useState(reduce ? 48 : 0);
+  useEffect(() => { if (reduce) return; const i = setInterval(() => setM((x) => (x >= 60 ? 0 : x + 1)), 120); return () => clearInterval(i); }, [reduce]);
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className="relative size-[190px] overflow-hidden rounded-2xl">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/examples/avocado-toast.svg" alt="" className="h-full w-full object-cover" />
-        <div className="animate-scanline absolute inset-x-1 h-[3px] rounded-full bg-lime shadow-[0_0_18px_4px_rgb(200_255_61/0.6)]" />
-        {pins.slice(0, i + 1).map(([n, x, y]) => (
-          <motion.span key={n} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="absolute -translate-x-1/2 whitespace-nowrap rounded-full bg-cream px-2 py-0.5 text-[10px] font-medium text-ink" style={{ left: `${x}%`, top: `${y}%` }}>{n}</motion.span>
-        ))}
-      </div>
+    <div className="flex h-full flex-col justify-center rounded-[16px] bg-void p-5 text-fg">
+      <div className="flex items-center gap-2 text-[13px] font-semibold"><span className="size-2 animate-pulse rounded-full bg-lime" />Fortnite · live</div>
+      <p className="mt-2 font-display text-[54px] font-bold leading-none tabular">{String(m).padStart(2, "0")}:00</p>
+      <p className="mt-1 text-[13px] text-fg-soft">+{Math.floor(m / 5)} pts this session</p>
     </div>
   );
 }
-function LoopBars() {
-  const i = useLoop(2, 2200);
-  const v = i ? [0.62, 0.8, 0.45] : [0.35, 0.5, 0.7];
+function LoopQuests() {
+  const reduce = useReducedMotion();
+  const qs = ["Crust Shield Protocol", "Chip Per Kill", "Hydration Respawn"];
+  const [i, setI] = useState(0);
+  useEffect(() => { if (reduce) return; const t = setInterval(() => setI((x) => (x + 1) % qs.length), 1700); return () => clearInterval(t); }, [reduce, qs.length]);
   return (
-    <div className="absolute inset-0 flex items-end justify-center gap-6 px-10 pb-8">
-      {[["Protein", "#E5482F"], ["Carbs", "#D9A441"], ["Fat", "#6B7B3A"]].map(([n, c], k) => (
-        <div key={n} className="flex h-full w-16 flex-col items-center justify-end gap-2 pt-8">
-          <motion.div className="w-full rounded-t-xl" style={{ background: c }} animate={{ height: `${v[k] * 100}%` }} transition={{ type: "spring", stiffness: 120, damping: 18 }} />
-          <span className="text-[12px] text-cream/60">{n}</span>
+    <div className="flex h-full flex-col justify-center gap-2 rounded-[16px] bg-void p-4 text-fg">
+      {qs.map((q, k) => (
+        <div key={q} className={cn("flex items-center gap-2 rounded-[12px] p-2.5 text-[13px] font-semibold ring-1 transition-all duration-300", k === i ? "bg-lime/10 text-lime ring-lime/40" : "bg-white/5 ring-white/10")}>
+          <span className={cn("grid size-5 place-items-center rounded-[5px] border", k <= i ? "border-lime bg-lime text-void" : "border-white/25")}>{k <= i && <Check className="size-3.5" strokeWidth={3} />}</span>{q}
         </div>
       ))}
     </div>
   );
 }
-function LoopHistory() {
-  const i = useLoop(3, 1600);
-  const rows = [["Breakfast", "avocado toast", "410"], ["Lunch", "chicken bowl", "640"], ["Dinner", "spaghetti", "780"]];
+function LoopShop() {
   return (
-    <div className="absolute inset-0 flex flex-col justify-center gap-2 px-8">
-      {rows.slice(0, i + 1).map(([m, n, c]) => (
-        <motion.div key={m} layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between rounded-xl bg-white/[0.06] px-4 py-3 text-[13px]">
-          <span><span className="text-cream/50">{m} · </span>{n}</span><span className="font-mono text-lime">{c} cal</span>
-        </motion.div>
-      ))}
+    <div className="grid h-full grid-cols-2 gap-2 rounded-[16px] bg-void p-3 text-fg">
+      {[[Headphones, "Headset", "30k"], [Gamepad2, "Controller", "20k"], [Gift, "$10 Steam", "3k"], [Swords, "Mouse", "12k"]].map(([I, n, c], k) => {
+        const Icon = I as typeof Gift;
+        return (
+          <div key={n as string} className="animate-floaty rounded-[12px] bg-white/5 px-2.5 py-2 ring-1 ring-white/10" style={{ animationDelay: `${k * 0.4}s` }}>
+            <Icon className="size-4 text-cyan" /><p className="mt-1 truncate text-[12px] font-semibold leading-tight">{n as string}</p><p className="text-[11px] font-bold text-lime">{c as string} pts</p>
+          </div>
+        );
+      })}
     </div>
   );
 }
 function LoopStreak() {
-  const i = useLoop(7, 700);
+  const reduce = useReducedMotion();
+  const [n, setN] = useState(reduce ? 6 : 0);
+  useEffect(() => { if (reduce) return; const i = setInterval(() => setN((x) => (x >= 7 ? 0 : x + 1)), 600); return () => clearInterval(i); }, [reduce]);
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-      <div className="flex gap-2">
-        {["M", "T", "W", "T", "F", "S", "S"].map((d, k) => (
-          <div key={k} className={cn("grid size-9 place-items-center rounded-xl text-[12px] font-semibold transition-colors duration-300", k <= i ? "bg-lime text-night" : "bg-white/[0.06] text-cream/40")}>{d}</div>
-        ))}
-      </div>
-      <p className="font-mono text-[13px] text-cream/70"><Flame className="mr-1 inline size-4 text-tomato" fill="#E5482F" />{i + 1}-day streak</p>
+    <div className="flex h-full flex-col justify-center rounded-[16px] bg-void p-5 text-fg">
+      <p className="font-display text-[44px] font-bold leading-none tabular text-pink">{n} day{n === 1 ? "" : "s"}</p>
+      <div className="mt-3 flex gap-1.5">{Array.from({ length: 7 }).map((_, k) => <span key={k} className={cn("grid size-8 place-items-center rounded-[9px] transition", k < n ? "bg-pink/20 text-pink" : "bg-white/5 text-white/20")}><Flame className="size-4" /></span>)}</div>
+      <p className="mt-2 text-[12px] text-fg-soft">Streak shields save a missed day.</p>
     </div>
   );
 }
 
-/* ───────── what changes (true product facts) ───────── */
-export function Changes() {
-  const stats = [
-    { n: 1, s: " photo", l: "is all a meal takes. No typing, no search bar." },
-    { n: 3, s: " taps", l: "from opening the app to a saved meal." },
-    { n: 0, s: " grams to weigh", l: "Portions are estimated from the photo. Fix one in a tap if you want." },
+export function Features() {
+  const f = [
+    { t: "Game Sync", d: "Connect your favorite titles. Steam playtime syncs on its own; every other platform counts with a tap-to-start session timer.", v: <LoopSync />, icon: Link2 },
+    { t: "Snack Quests", d: "Daily food-themed achievements written for your game and your snack. Prove each one with a single photo.", v: <LoopQuests />, icon: Swords },
+    { t: "Reward Shop", d: "Redeem gift cards and gaming gear with the points you earned. Track each reward from request to your door.", v: <LoopShop />, icon: Gift },
+    { t: "Streak Tracker", d: "Keep your gaming appetite high: one quest a day keeps the flame alive, and shields cover a missed night.", v: <LoopStreak />, icon: Flame },
   ];
   return (
-    <section className="bg-cream px-4 py-16 text-ink md:py-28">
+    <section id="features" className="light scroll-mt-20 px-4 py-16 md:py-28">
       <div className="mx-auto max-w-[1120px]">
-        <Reveal><Label>what changes</Label><H2>Logging goes from a chore<br /><span className="text-ink-soft">to a habit you keep.</span></H2></Reveal>
-        <Stagger className="mt-10 grid gap-4 md:mt-14 md:grid-cols-3">
-          {stats.map((x) => (
-            <StaggerItem key={x.s} className="recipe-card p-7">
-              <p className="font-serif text-[64px] font-semibold leading-none tracking-[-0.04em] text-tomato"><CountUp to={x.n} /><span className="text-[26px] tracking-[-0.02em] text-ink">{x.s}</span></p>
-              <p className="mt-4 text-[15px] leading-relaxed text-ink-soft">{x.l}</p>
+        <Reveal><Label className="text-violet">in action</Label></Reveal>
+        <Reveal delay={0.05}><H2 className="mt-3">Built for the grind. <span className="title-fade">And the snacks.</span></H2></Reveal>
+        <Stagger className="mt-10 grid gap-4 md:grid-cols-2">
+          {f.map(({ t, d, v, icon: I }) => (
+            <StaggerItem key={t} className="grid gap-5 rounded-[22px] border border-line bg-surface p-5 shadow-[0_20px_50px_-30px_rgb(14_11_24/0.25)] sm:grid-cols-[1fr_200px]">
+              <div>
+                <span className="grid size-10 place-items-center rounded-[12px] bg-violet/10 text-violet"><I className="size-5" /></span>
+                <h3 className="mt-4 font-display text-[28px] font-bold uppercase leading-none">{t}</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-fg-soft">{d}</p>
+              </div>
+              <div className="dark-scope h-[190px]">{v}</div>
             </StaggerItem>
           ))}
         </Stagger>
@@ -262,59 +214,57 @@ export function Changes() {
   );
 }
 
-/* ───────── comparison with the usual way ───────── */
-export function Compare() {
-  const rows: [string, string][] = [
-    ["Search a database for each food", "Snap one photo of the plate"],
-    ["Pick from dozens of look-alike entries", "Every food found and named for you"],
-    ["Weigh or guess every portion", "Portions estimated from the photo"],
-    ["Type it all again tomorrow", "Your day adds up by itself"],
+/* ───────── what changes (dark, true numbers) ───────── */
+export function Changes() {
+  const stats = [
+    { n: 60, suf: " sec", t: "From sign-up to your first quest" },
+    { n: 3000, suf: " pts", t: "For a $10 gift card in the Reward Shop" },
+    { n: 1, suf: " photo", t: "Proves a quest. No forms, no receipts" },
   ];
   return (
-    <section className="bg-paper px-4 py-16 text-ink md:py-28">
-      <div className="mx-auto max-w-[920px]">
-        <Reveal className="text-center"><Label>the difference</Label><H2>The usual way vs. MacroSnap</H2></Reveal>
-        <Reveal className="mt-10 grid gap-3 md:mt-14 md:grid-cols-2">
-          <div className="rounded-[24px] border border-ink/10 bg-cream/60 p-6">
-            <p className="flex items-center gap-2 font-semibold text-ink-soft"><Scale className="size-5" />The usual way</p>
-            <ul className="mt-4 space-y-3">{rows.map(([a]) => <li key={a} className="flex gap-3 text-[15px] text-ink-soft"><X className="mt-0.5 size-[18px] shrink-0 text-tomato/70" />{a}</li>)}</ul>
-          </div>
-          <div className="rounded-[24px] bg-night p-6 text-cream shadow-[0_30px_60px_-30px_rgb(20_18_14/0.6)]">
-            <p className="flex items-center gap-2 font-semibold"><LogoMark className="size-6" />MacroSnap</p>
-            <ul className="mt-4 space-y-3">{rows.map(([, b]) => <li key={b} className="flex gap-3 text-[15px]"><Check className="mt-0.5 size-[18px] shrink-0 text-lime" strokeWidth={2.5} />{b}</li>)}</ul>
-          </div>
-        </Reveal>
+    <section className="px-4 py-16 md:py-28">
+      <div className="mx-auto max-w-[1120px]">
+        <Reveal><Label className="text-cyan">what changes</Label></Reveal>
+        <Reveal delay={0.05}><H2 className="mt-3 max-w-[860px]">Earn points automatically. <span className="title-fade">Turn snacks into quests. Unlock real gear.</span></H2></Reveal>
+        <Stagger className="mt-10 grid gap-4 md:grid-cols-3">
+          {stats.map((s) => (
+            <StaggerItem key={s.t} className="hud hud-corners p-6">
+              <p className="font-display text-[56px] font-bold leading-none text-lime"><CountUp to={s.n} suffix={s.suf} /></p>
+              <p className="mt-3 text-[15px] text-fg-soft">{s.t}</p>
+            </StaggerItem>
+          ))}
+        </Stagger>
+        <p className="mt-6 text-[13px] text-fg-soft">Point costs are the Reward Shop&apos;s current prices. Rewards are redeemed with points only.</p>
       </div>
     </section>
   );
 }
 
-/* ───────── questions ───────── */
-const QUESTIONS = [
-  { q: "How accurate is it?", a: "MacroSnap estimates portions from your photo and uses USDA nutrition data. For most plates it lands close to a careful manual log, without the 10 minutes. Sauces and oils hidden under food are the hardest part, so you can fix any portion in one tap." },
-  { q: "Does it work for restaurant and takeout food?", a: "Yes. Burrito bowls, pizza, sushi, a diner breakfast: if you can see it, MacroSnap can read it. It even adds the dressing and oil it can see." },
-  { q: "Where do my photos go?", a: "Your photos are stored privately in your account. Only you can see them. Delete a meal and its photo is deleted too. Delete your account and everything goes." },
-  { q: "Will it work with my diet?", a: "Yes. Keto, high-protein, cutting, bulking, or just eating better: set your own daily calorie and macro goals and MacroSnap tracks against them." },
-  { q: "How much does it cost?", a: "You try it free first. The plans show up once your first macros are ready." },
-  { q: "Is this medical advice?", a: "No. MacroSnap gives nutrition estimates to help you track. For medical diets, talk to your doctor or a registered dietitian." },
-];
-export function Questions() {
-  const [open, setOpen] = useState<number | null>(0);
+/* ───────── comparison (light) ───────── */
+export function Compare() {
+  const rows: [string, string, string][] = [
+    ["Your snack breaks", "Just snacks", "Quests worth points"],
+    ["Hours of playtime", "Nothing to show", "Points every session"],
+    ["New gear", "Paid full price", "Redeemed with points"],
+    ["Long grind sessions", "Same old queue", "A streak to keep alive"],
+    ["Your first reward", "Never comes", "$10 card at 3,000 pts"],
+  ];
   return (
-    <section id="questions" className="scroll-mt-20 bg-cream px-4 py-16 text-ink md:py-28">
-      <div className="mx-auto max-w-[760px]">
-        <Reveal className="text-center"><Label>questions</Label><H2>Good questions.</H2></Reveal>
-        <Reveal className="mt-10 divide-y divide-ink/10 border-y border-ink/10">
-          {QUESTIONS.map((f, i) => (
-            <div key={f.q}>
-              <button onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i} className="flex w-full items-center justify-between gap-4 py-5 text-left font-serif text-[19px] font-semibold tracking-[-0.01em] md:text-[21px]">
-                {f.q}<ChevronDown className={cn("size-5 shrink-0 transition", open === i && "rotate-180")} />
-              </button>
-              <AnimatePresence initial={false}>
-                {open === i && (
-                  <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden pb-5 text-[16px] leading-relaxed text-ink-soft">{f.a}</motion.p>
-                )}
-              </AnimatePresence>
+    <section className="light px-4 py-16 md:py-28">
+      <div className="mx-auto max-w-[920px]">
+        <Reveal><Label className="text-violet">the usual way</Label></Reveal>
+        <Reveal delay={0.05}><H2 className="mt-3">Same snacks. <span className="title-fade">Way more loot.</span></H2></Reveal>
+        <Reveal delay={0.1} className="mt-10 overflow-hidden rounded-[22px] border border-line bg-surface">
+          <div className="grid grid-cols-[1.1fr_1fr_1fr] border-b border-line bg-surface-2 px-4 py-3 text-[13px] font-semibold md:px-6">
+            <span />
+            <span className="text-fg-soft">The usual way</span>
+            <span className="flex items-center gap-1.5"><LogoMark className="size-5" />SnackQuest</span>
+          </div>
+          {rows.map(([a, b, c]) => (
+            <div key={a} className="grid grid-cols-[1.1fr_1fr_1fr] items-center gap-2 border-b border-line px-4 py-4 text-[14px] last:border-0 md:px-6 md:text-[15px]">
+              <span className="font-semibold">{a}</span>
+              <span className="flex items-center gap-1.5 text-fg-soft"><X className="size-4 shrink-0 text-pink" />{b}</span>
+              <span className="flex items-center gap-1.5"><Check className="size-4 shrink-0 text-[#5b8a00]" strokeWidth={3} />{c}</span>
             </div>
           ))}
         </Reveal>
@@ -323,52 +273,83 @@ export function Questions() {
   );
 }
 
+/* ───────── questions (dark) ───────── */
+const FAQ = [
+  { q: "Does it work with my games?", a: "Yes. Quests work with any game on any platform, because you prove them with a photo of your snack and your screen. Steam games sync playtime automatically. For console, Epic and mobile games, a website can't read your playtime, so you tap the session timer when you start playing." },
+  { q: "Are the rewards real?", a: "Yes. The Reward Shop has gift cards and gaming gear. When you redeem, your points are held right away and the SnackQuest team sends your reward: gift-card codes by email, gear shipped to your US address. You track the status in the app." },
+  { q: "How much does it cost?", a: "You try it free first. The plans show up once your first Snack Quest is ready." },
+  { q: "Do I have to eat a lot?", a: "No. Quests are about one normal snack, timing and fun, not eating more. Healthy snacks earn the same points, and energy-drink quests stay at one can with water breaks." },
+  { q: "How does the photo check work?", a: "You snap one photo of the snack with your game screen or setup. Our AI referee checks it in a few seconds and tells you exactly what to add if something's missing." },
+  { q: "Is SnackQuest made by a game company?", a: "No. SnackQuest is an independent app and isn't affiliated with Epic, Valve, Riot, Microsoft or any game publisher." },
+];
+export function Questions() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <section id="questions" className="scroll-mt-20 px-4 py-16 md:py-28">
+      <div className="mx-auto max-w-[820px]">
+        <Reveal><Label className="text-cyan">questions</Label></Reveal>
+        <Reveal delay={0.05}><H2 className="mt-3">Before you press start.</H2></Reveal>
+        <div className="mt-10 divide-y divide-line border-y border-line">
+          {FAQ.map((f, i) => (
+            <div key={f.q}>
+              <button onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i} className="flex w-full items-center justify-between gap-4 py-5 text-left text-[17px] font-semibold md:text-[19px]">
+                {f.q}<ChevronDown className={cn("size-5 shrink-0 text-fg-soft transition", open === i && "rotate-180 text-lime")} />
+              </button>
+              <AnimatePresence initial={false}>
+                {open === i && (
+                  <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden pb-5 text-[15px] leading-relaxed text-fg-soft md:text-[16px]">{f.a}</motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ───────── final block ───────── */
 export function FinalCta() {
   return (
-    <section className="relative overflow-hidden bg-night px-4 py-20 text-center text-cream md:py-32">
-      <div className="dot-grid absolute inset-0" />
-      <div className="absolute left-1/2 top-0 h-[300px] w-[600px] -translate-x-1/2 rounded-full bg-tomato/25 blur-[100px]" />
-      <Reveal className="relative mx-auto max-w-[760px]">
-        <p className="label-mono text-lime">[ tonight ]</p>
-        <h2 className="title-xl mt-4 text-[44px] md:text-[72px]">Snap dinner tonight.<br /><span className="title-fade">Know your macros in seconds.</span></h2>
-        <a href="#try" className="group relative isolate mt-10 inline-flex h-[64px] items-center gap-4 rounded-full bg-lime pl-7 pr-2.5 text-[17px] font-semibold text-night transition active:scale-[0.955]">
-          <span className="absolute inset-0 -z-10 rounded-full bg-lime blur-xl animate-breathe" />
-          Snap my macros
-          <span className="grid size-[46px] place-items-center rounded-full bg-night text-lime"><Camera className="size-5" /></span>
-        </a>
-        <p className="mt-5 font-mono text-[12px] uppercase tracking-[0.18em] text-cream/50">Free to try · No account needed</p>
+    <section className="relative overflow-hidden px-4 py-20 md:py-32">
+      <div className="dot-grid pointer-events-none absolute inset-0 opacity-60" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[760px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(200_255_61/0.16),rgb(139_92_246/0.18),transparent)]" />
+      <Reveal className="relative mx-auto max-w-[820px] text-center">
+        <Label className="text-lime">tonight</Label>
+        <H2 className="mt-4">One pizza. One match. <span className="text-neon">Your first +100.</span></H2>
+        <p className="mx-auto mt-5 max-w-[520px] text-[17px] text-fg-soft">Build your Snack Quest now and clear quest #1 in your next session.</p>
+        <div className="mt-9 flex justify-center"><MainButton href="/signup" data-testid="final-cta">{CTA}</MainButton></div>
+        <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.1em] text-fg-soft sm:text-[12px] sm:tracking-[0.16em]">Free to start · No card · Your quest in 60 seconds</p>
       </Reveal>
     </section>
   );
 }
 
-/* ───────── footer with the giant wordmark ───────── */
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-night px-4 pt-14 text-cream">
-      <div className="mx-auto grid max-w-[1120px] gap-10 border-t border-white/10 pt-12 md:grid-cols-4">
+    <footer className="relative overflow-hidden border-t border-line bg-night px-4 pt-14">
+      <div className="mx-auto grid max-w-[1120px] gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
-          <Link href="/" className="inline-flex items-center gap-2"><LogoMark /><span className="font-serif text-[19px] font-semibold">MacroSnap</span></Link>
-          <p className="mt-3 max-w-xs text-[14px] text-cream/55">Snap your meal, track your macros instantly.</p>
+          <Link href="/" className="inline-flex items-center gap-2"><LogoMark /><span className="font-display text-[21px] font-bold uppercase">SnackQuest</span></Link>
+          <p className="mt-3 max-w-xs text-[14px] text-fg-soft">Made for gamers who love snacks.</p>
         </div>
-        <div className="space-y-2.5 text-[14px] text-cream/70">
-          <p className="label-mono text-cream/40">Product</p>
-          <a href="#how" className="block hover:text-cream">How it works</a>
-          <a href="#features" className="block hover:text-cream">Features</a>
-          <a href="#questions" className="block hover:text-cream">Questions</a>
+        <div className="space-y-2.5 text-[14px] text-fg-soft">
+          <p className="label-mono text-fg-soft/60">Product</p>
+          <a href="#how" className="block hover:text-fg">How it works</a>
+          <a href="#features" className="block hover:text-fg">Features</a>
+          <a href="#questions" className="block hover:text-fg">Questions</a>
         </div>
-        <div className="space-y-2.5 text-[14px] text-cream/70">
-          <p className="label-mono text-cream/40">Account</p>
-          <Link href="/login" className="block hover:text-cream">Log in</Link>
-          <Link href="/terms" className="block hover:text-cream">Terms</Link>
-          <Link href="/privacy" className="block hover:text-cream">Privacy</Link>
+        <div className="space-y-2.5 text-[14px] text-fg-soft">
+          <p className="label-mono text-fg-soft/60">Account</p>
+          <Link href="/login" className="block hover:text-fg">Log in</Link>
+          <Link href="/terms" className="block hover:text-fg">Terms</Link>
+          <Link href="/privacy" className="block hover:text-fg">Privacy</Link>
         </div>
       </div>
-      <p className="mx-auto mt-12 max-w-[1120px] text-[12px] text-cream/40">© {new Date().getFullYear()} MacroSnap. Nutrition values are estimates, not medical advice.</p>
-      <div aria-hidden className="pointer-events-none mt-4 select-none text-center font-serif font-semibold leading-[0.8] tracking-[-0.06em] text-cream"
-        style={{ fontSize: "clamp(72px, 19vw, 280px)", opacity: 0.13, maskImage: "linear-gradient(180deg,#000 20%,transparent 95%)", WebkitMaskImage: "linear-gradient(180deg,#000 20%,transparent 95%)" }}>
-        MacroSnap
+      <p className="mx-auto mt-12 max-w-[1120px] text-[12px] text-fg-soft/70">© {new Date().getFullYear()} SnackQuest. Not affiliated with any game publisher. Game names belong to their owners.</p>
+      <div aria-hidden className="pointer-events-none mt-4 select-none text-center font-display font-bold uppercase leading-[0.8] text-fg"
+        style={{ fontSize: "clamp(64px, 17vw, 260px)", opacity: 0.13, maskImage: "linear-gradient(180deg,#000 20%,transparent 95%)", WebkitMaskImage: "linear-gradient(180deg,#000 20%,transparent 95%)" }}>
+        SnackQuest
       </div>
     </footer>
   );
@@ -378,7 +359,7 @@ export function Footer() {
 export function StickyCta() {
   const [show, setShow] = useState(false);
   useEffect(() => {
-    const el = document.getElementById("try");
+    const el = document.getElementById("hero-cta");
     if (!el) return;
     const io = new IntersectionObserver(([e]) => setShow(!e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0 });
     io.observe(el);
@@ -387,10 +368,12 @@ export function StickyCta() {
   return (
     <AnimatePresence>
       {show && (
-        <motion.a href="#try" initial={{ y: 90 }} animate={{ y: 0 }} exit={{ y: 90 }} transition={{ type: "spring", stiffness: 400, damping: 34 }}
-          className="fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-30 flex h-14 items-center justify-center gap-2 rounded-full bg-tomato text-[16px] font-semibold text-white shadow-[0_12px_30px_-8px_rgb(229_72_47/0.7)] md:hidden">
-          <Camera className="size-5" />Snap my macros
-        </motion.a>
+        <motion.div initial={{ y: 90 }} animate={{ y: 0 }} exit={{ y: 90 }} transition={{ type: "spring", stiffness: 400, damping: 34 }}
+          className="fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-30 md:hidden">
+          <Link href="/signup" className="flex h-14 items-center justify-center gap-2 rounded-full bg-lime text-[16px] font-semibold text-void shadow-[0_12px_30px_-8px_rgb(200_255_61/0.55)]">
+            <Camera className="size-5" />{CTA}
+          </Link>
+        </motion.div>
       )}
     </AnimatePresence>
   );

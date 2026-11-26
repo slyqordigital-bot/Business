@@ -66,7 +66,7 @@ export function CheckoutSheet({ plan, period, onClose, onPaid, onPaymentsOff }: 
         return;
       }
       if (!alive || !window.WhopElements) return;
-      const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const dark = true;
       const ck = window.WhopElements().checkout.create({
         checkoutConfiguration: embed,
         returnUrl: location.origin + "/dashboard?paid=1&ref=" + encodeURIComponent(ref),
@@ -104,14 +104,14 @@ export function CheckoutSheet({ plan, period, onClose, onPaid, onPaymentsOff }: 
       <div className="flex min-h-[60dvh] flex-col overflow-y-auto px-5 pb-6 pt-5 md:min-h-[560px] md:px-7" data-testid="checkout-sheet">
         <div className="pr-10">
           <p className="text-[13px] text-fg-soft">Checkout</p>
-          <h3 className="font-serif text-[24px] font-semibold tracking-[-0.02em]">{plan && `MacroSnap ${shortName(plan.name)}`} <span className="text-fg-soft">· {price}</span></h3>
+          <h3 className="font-display text-[26px] font-bold uppercase">{plan && `SnackQuest ${shortName(plan.name)}`} <span className="text-fg-soft">· {price}</span></h3>
         </div>
         <div className="relative mt-4 flex-1">
           {state === "loading" && (
             <div className="absolute inset-x-0 top-6 flex items-center justify-center gap-2 text-[14px] text-fg-soft"><Loader2 className="size-4 animate-spin" />Loading secure checkout…</div>
           )}
           {state === "error" && (
-            <div className="rounded-xl bg-surface-2 p-4 text-[14px]">The checkout didn&apos;t load. Close this and try again. Your meal is saved.</div>
+            <div className="rounded-xl bg-surface-2 p-4 text-[14px]">The checkout didn&apos;t load. Close this and try again. Your quest is saved.</div>
           )}
           <div id="whop-checkout" className="min-h-[420px]" style={{ opacity: state === "ready" ? 1 : 0, transition: "opacity .3s" }} />
         </div>

@@ -19,3 +19,8 @@ export function dayKey(d: Date, tzOffsetMin = 0) {
   const t = new Date(d.getTime() - tzOffsetMin * 60_000);
   return t.toISOString().slice(0, 10);
 }
+
+/** A gamer tag safe to show anywhere. */
+export function cleanTag(v: string) {
+  return v.replace(/[^\w .\-#]/g, "").trim().slice(0, 32) || null;
+}

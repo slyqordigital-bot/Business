@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-const APP = ["/today", "/scan", "/history", "/settings", "/account", "/pricing", "/dashboard"];
+const APP = ["/dashboard", "/quests", "/rewards", "/profile", "/account", "/pricing", "/start"];
 
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req });
@@ -33,13 +33,13 @@ export async function middleware(req: NextRequest) {
   }
   // marketing attribution, kept for sign-up (profiles.intended_plan / profiles.source)
   const plan = searchParams.get("plan");
-  if (plan) res.cookies.set("ms_plan", plan.slice(0, 40), { maxAge: 60 * 60 * 24 * 30, sameSite: "lax", path: "/" });
+  if (plan) res.cookies.set("sq_plan", plan.slice(0, 40), { maxAge: 60 * 60 * 24 * 30, sameSite: "lax", path: "/" });
   const utm: Record<string, string> = {};
   searchParams.forEach((v, key) => {
     if (key.startsWith("utm_")) utm[key] = v.slice(0, 100);
   });
   if (Object.keys(utm).length)
-    res.cookies.set("ms_utm", JSON.stringify(utm), { maxAge: 60 * 60 * 24 * 30, sameSite: "lax", path: "/" });
+    res.cookies.set("sq_utm", JSON.stringify(utm), { maxAge: 60 * 60 * 24 * 30, sameSite: "lax", path: "/" });
 
   if (url && anon) {
     const isApp = APP.some((p) => pathname === p || pathname.startsWith(p + "/"));
@@ -49,9 +49,9 @@ export async function middleware(req: NextRequest) {
       to.search = `?next=${encodeURIComponent(pathname + req.nextUrl.search)}`;
       return NextResponse.redirect(to);
     }
-    if (signedIn && pathname === "/") {
+    if (signedIn && (pathname === "/" || pathname === "/signup" || pathname === "/login")) {
       const to = req.nextUrl.clone();
-      to.pathname = "/today";
+      to.pathname = "/dashboard";
       to.search = "";
       return NextResponse.redirect(to);
     }

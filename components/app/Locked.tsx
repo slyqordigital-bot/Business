@@ -1,14 +1,26 @@
 "use client";
 import { Lock } from "lucide-react";
 import { useFunnel } from "@/components/funnel/Funnel";
+import { cn } from "@/lib/utils";
 
-/** A real preview, blurred, with "Unlock with <next plan>". */
-export function Locked({ children, level, planName, reason }: { children: React.ReactNode; level: 1 | 2; planName: string; reason: string }) {
+/** A locked part: its real preview blurred, with "Unlock with <next plan>". Tap → the upgrade sheet. */
+export function Locked({ children, level, next, className, reason, skip }: { children: React.ReactNode; level: number; next: string | null; className?: string; reason?: string; skip?: boolean }) {
   const funnel = useFunnel();
+  if (level >= 3 || !next) return <>{children}</>;
+  // skip: the part needs a plan two levels up → the paywall with every higher plan
+  const open = () => (skip ? funnel.openPaywall({ title: "Get more from SnackQuest.", line: reason, currentLevel: level }) : funnel.openUpgrade({ level: level as 1 | 2, reason }));
   return (
-    <button type="button" onClick={() => funnel.openUpgrade({ level, reason })} className="relative block w-full overflow-hidden rounded-[20px] text-left">
-      <div aria-hidden className="pointer-events-none select-none blur-[7px]">{children}</div>
-      <span className="absolute inset-0 flex items-center justify-center gap-2 bg-bg/30 text-[15px] font-semibold"><span className="flex items-center gap-2 rounded-full bg-fg px-4 py-2.5 text-bg shadow-lg"><Lock className="size-4" />Unlock with {planName}</span></span>
-    </button>
+    <div className={cn("relative", className)}>
+      <div className="pointer-events-none select-none blur-[7px]" aria-hidden>{children}</div>
+      <button onClick={open} className="absolute inset-0 grid place-items-center rounded-[18px] bg-void/40" data-testid="locked-part">
+        <span className="flex items-center gap-2 rounded-full bg-void/85 px-4 py-2 text-[14px] font-semibold ring-1 ring-lime/40"><Lock className="size-4 text-lime" />Unlock with {next}</span>
+      </button>
+    </div>
   );
+}
+
+export function UpgradeButton({ level, reason, children, className }: { level: number; reason?: string; children: React.ReactNode; className?: string }) {
+  const funnel = useFunnel();
+  if (level >= 3) return null;
+  return <button onClick={() => funnel.openUpgrade({ level: level as 1 | 2, reason })} className={className}>{children}</button>;
 }

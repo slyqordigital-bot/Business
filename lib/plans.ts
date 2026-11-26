@@ -4,56 +4,78 @@
  */
 export type Level = 0 | 1 | 2 | 3; // 0 = no paid plan
 
-export type Feature = "breakdown" | "trends" | "history_all" | "weekly" | "export" | "priority";
+export type Feature = "projection" | "history_all" | "shields" | "custom_quests" | "priority";
 
-export const QUOTAS: Record<Level, { scans: number; historyDays: number | null; features: Feature[] }> = {
-  0: { scans: 0, historyDays: 0, features: [] },
-  1: { scans: 40, historyDays: 30, features: [] },
-  2: { scans: 150, historyDays: null, features: ["breakdown", "trends", "history_all"] },
-  3: { scans: 400, historyDays: null, features: ["breakdown", "trends", "history_all", "weekly", "export", "priority"] },
+export const QUOTAS: Record<Level, { quests: number; games: number; multiplier: number; historyDays: number | null; features: Feature[] }> = {
+  0: { quests: 0, games: 0, multiplier: 1, historyDays: 0, features: [] },
+  1: { quests: 20, games: 1, multiplier: 1, historyDays: 30, features: [] },
+  2: { quests: 60, games: 3, multiplier: 1.5, historyDays: null, features: ["projection", "history_all", "shields"] },
+  3: { quests: 150, games: 10, multiplier: 2, historyDays: null, features: ["projection", "history_all", "shields", "custom_quests", "priority"] },
 };
 
 export const TAGS: Record<1 | 2 | 3, string> = {
-  1: "For casual tracking",
-  2: "For daily goals",
-  3: "For strict control",
+  1: "For casual snackers",
+  2: "For daily grinders",
+  3: "For hardcore players",
 };
 
 export const UNLOCKS: Record<1 | 2 | 3, string[]> = {
   1: [
-    "40 photo scans a month",
-    "Calories, protein, carbs and fat for every meal",
-    "Your daily log and streak",
-    "30 days of history",
+    "20 snack quests a month, checked from your photo",
+    "Points for every quest and every play session",
+    "1 linked game",
+    "The Reward Shop: gift cards and gear",
+    "30 days of quest history",
   ],
   2: [
-    "150 photo scans a month — about 5 a day",
-    "A breakdown for each food on the plate",
-    "Unlimited history",
-    "Streaks and trend charts for your macros",
-    "Edit any portion in one tap",
+    "60 snack quests a month, about 2 a day",
+    "1.5× points on everything",
+    "3 linked games",
+    "Streak shields: miss a day, keep your streak",
+    "Your 30-day projection and full history",
   ],
   3: [
-    "400 photo scans a month — every snack covered",
-    "Everything in Plate",
-    "Week-by-week comparisons",
-    "CSV export for your coach or spreadsheet",
-    "Priority scans, first in line",
+    "150 snack quests a month, 5 a day",
+    "2× points on everything",
+    "10 linked games",
+    "Custom quests from a photo of your own snack",
+    "Everything in Grinder, and rewards handled first",
   ],
 };
 
 /** What the next plan adds, for the upgrade sheet (3 lines). */
 export const ADDS: Record<1 | 2, string[]> = {
-  1: ["150 scans a month instead of 40", "A breakdown for each food", "Unlimited history and trend charts"],
-  2: ["400 scans a month instead of 150", "Week-by-week comparisons", "CSV export and priority scans"],
+  1: ["60 quests a month instead of 20", "1.5× points and 3 linked games", "Streak shields and your 30-day projection"],
+  2: ["150 quests a month instead of 60", "2× points and 10 linked games", "Custom quests from your own snacks"],
 };
 
-export const FREE_TRIES_PER_DAY = 3;
+/** Points economy (the owner can tune it here and in the rewards table). */
+export const POINTS = {
+  rarity: { common: 40, rare: 60, legendary: 100 } as Record<"common" | "rare" | "legendary", number>,
+  perMinutes: 5, // 1 point per 5 minutes played
+  dailyMinutesCap: 180, // play minutes counted per day (timer + Steam)
+  verifyPerDay: 20, // photo checks per day (AI cost cap, also for failed checks)
+  runsPerDay: 4, // quest runs a free account can build per day
+};
 
 export function hasFeature(level: Level, f: Feature) {
   return QUOTAS[level].features.includes(f);
 }
 
 export function shortName(name: string) {
-  return name.replace(/^MacroSnap\s+/i, "");
+  return name.replace(/^SnackQuest\s+/i, "");
 }
+
+export const GAMES = ["Fortnite", "Valorant", "Minecraft", "Call of Duty", "League of Legends", "Roblox", "Something else"] as const;
+export const SNACKS = ["Pizza", "Chips", "Wings", "Candy", "Energy drinks", "Healthy stuff"] as const;
+export const WHENS = ["After school or work", "Late night", "Weekends", "All the time"] as const;
+export const GOALS = ["Headset", "Controller", "Keyboard", "Mouse", "Game gift card"] as const;
+
+/** Onboarding goal → the reward it points to in the catalog (by name match). */
+export const GOAL_MATCH: Record<string, string> = {
+  Headset: "Headset",
+  Controller: "Controller",
+  Keyboard: "Keyboard",
+  Mouse: "Mouse",
+  "Game gift card": "Steam",
+};

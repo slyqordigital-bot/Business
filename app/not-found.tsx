@@ -3,12 +3,13 @@ import { LogoMark } from "@/components/ui/Logo";
 
 export default function NotFound() {
   return (
-    <main className="grid min-h-dvh place-items-center bg-cream px-6 text-center text-ink">
+    <main className="grid min-h-dvh place-items-center bg-bg px-6 text-center">
       <div>
         <LogoMark className="mx-auto size-12" />
-        <h1 className="mt-6 font-serif text-[34px] font-semibold tracking-[-0.03em]">This plate is empty.</h1>
-        <p className="mt-2 text-ink-soft">The page you&apos;re looking for isn&apos;t here.</p>
-        <Link href="/" className="mt-6 inline-block rounded-full bg-tomato px-6 py-3 font-semibold text-white">Back to MacroSnap</Link>
+        <p className="label-mono mt-6 text-cyan">[ 404 ]</p>
+        <h1 className="mt-2 font-display text-[38px] font-bold uppercase">Out of bounds.</h1>
+        <p className="mt-2 text-fg-soft">This page respawned somewhere else, or never existed.</p>
+        <Link href="/" className="mt-6 inline-block rounded-full bg-lime px-6 py-3 font-semibold text-void">Back to SnackQuest</Link>
       </div>
     </main>
   );

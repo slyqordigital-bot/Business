@@ -8,7 +8,7 @@ type Props = {
   href?: string;
   onClick?: () => void;
   size?: "lg" | "md" | "sm";
-  tone?: "tomato" | "lime" | "ink" | "cream";
+  tone?: "lime" | "cyan" | "ink" | "white";
   className?: string;
   type?: "button" | "submit";
   disabled?: boolean;
@@ -18,10 +18,10 @@ type Props = {
 };
 
 const tones = {
-  tomato: { btn: "bg-tomato text-white", dot: "bg-white text-tomato", glow: "bg-tomato" },
-  lime: { btn: "bg-lime text-night", dot: "bg-night text-lime", glow: "bg-lime" },
-  ink: { btn: "bg-ink text-cream", dot: "bg-cream text-ink", glow: "bg-ink" },
-  cream: { btn: "bg-cream text-ink", dot: "bg-tomato text-white", glow: "bg-cream" },
+  lime: { btn: "bg-lime text-void", dot: "bg-void text-lime", glow: "bg-lime/70" },
+  cyan: { btn: "bg-cyan text-void", dot: "bg-void text-cyan", glow: "bg-cyan/70" },
+  ink: { btn: "bg-ink text-white", dot: "bg-lime text-void", glow: "bg-violet/60" },
+  white: { btn: "bg-white text-void", dot: "bg-void text-lime", glow: "bg-white/50" },
 };
 const sizes = {
   lg: "h-[64px] pl-7 pr-2.5 text-[17px] gap-4",
@@ -31,7 +31,7 @@ const sizes = {
 const dots = { lg: "size-[46px]", md: "size-[40px]", sm: "size-7" };
 
 /** The one main action: a pill with a breathing glow and a nudging arrow. */
-export function MainButton({ children, href, onClick, size = "lg", tone = "tomato", className, type = "button", disabled, glow = true, arrow = true, ...rest }: Props) {
+export function MainButton({ children, href, onClick, size = "lg", tone = "lime", className, type = "button", disabled, glow = true, arrow = true, ...rest }: Props) {
   const t = tones[tone];
   const inner = (
     <>

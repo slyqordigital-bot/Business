@@ -43,11 +43,11 @@ export function Sheet({ open, onClose, children, variant = "full", className, la
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0" style={{ zIndex: z }} role="dialog" aria-modal="true" aria-label={label}>
-          <motion.div className="absolute inset-0 bg-night/55 backdrop-blur-[3px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
+          <motion.div className="absolute inset-0 bg-void/70 backdrop-blur-[3px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
           <motion.div
             className={cn(
               "absolute flex flex-col overflow-hidden shadow-2xl md:inset-auto md:left-1/2 md:top-1/2 md:max-h-[88dvh] md:w-[480px] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-[24px]",
-              dark ? "bg-night text-cream" : "bg-bg text-fg",
+              dark ? "bg-void text-fg" : "bg-bg text-fg",
               variant === "full" ? "inset-0" : "inset-x-0 bottom-0 max-h-[92dvh] rounded-t-[24px]",
               className,
             )}

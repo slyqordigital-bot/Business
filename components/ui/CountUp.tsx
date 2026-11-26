@@ -21,5 +21,5 @@ export function CountUp({ to, decimals = 0, prefix = "", suffix = "", className,
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [inView, to, reduce, duration]);
-  return <span ref={ref} className={className} style={{ fontVariantNumeric: "tabular-nums" }}>{prefix}{v.toFixed(decimals)}{suffix}</span>;
+  return <span ref={ref} className={className} style={{ fontVariantNumeric: "tabular-nums" }}>{prefix}{v.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}</span>;
 }

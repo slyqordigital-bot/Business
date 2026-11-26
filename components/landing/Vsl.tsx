@@ -1,32 +1,25 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Camera, Flame, Pause, Play, RotateCcw, Search } from "lucide-react";
+import { Camera, Check, Flame, Gamepad2, Headphones, Pause, Play, RotateCcw, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
  * The motion-design VSL (no video file): 8 scenes, ~64 s, muted autoplay when visible,
  * big captions, replay button. public/vsl.mp4 replaces it once it exists (see VSL.md).
  */
-const SCENES: { d: number; cap: string; sub?: string }[] = [
-  { d: 7000, cap: "Logging lunch shouldn't take 10 minutes.", sub: "the problem" },
-  { d: 8000, cap: "You search. You scroll. You guess.", sub: "the usual way" },
-  { d: 7000, cap: "By week two, most people stop logging.", sub: "why it fails" },
-  { d: 7000, cap: "What if you just took a photo?", sub: "the moment it clicks" },
-  { d: 9000, cap: "MacroSnap reads every food on your plate.", sub: "macrosnap in action" },
-  { d: 9000, cap: "Your macros, in seconds.", sub: "the result" },
-  { d: 9000, cap: "Every meal logged. Every day. Without typing.", sub: "what changes" },
-  { d: 8000, cap: "Snap your first meal. It's free to try.", sub: "your turn" },
+const SCENES: { d: number; cap: string; sub: string }[] = [
+  { d: 7000, cap: "Gaming gear costs a fortune.", sub: "the problem" },
+  { d: 8000, cap: "And you snack through every match anyway.", sub: "the usual way" },
+  { d: 8000, cap: "What if every snack break was a quest?", sub: "the moment it clicks" },
+  { d: 9000, cap: "Snap your snack. Quest cleared.", sub: "snackquest in action" },
+  { d: 8000, cap: "Your playtime earns points too.", sub: "game sync" },
+  { d: 9000, cap: "Points stack up. Gear unlocks.", sub: "the result" },
+  { d: 8000, cap: "A streak to keep. A reason to grind.", sub: "what changes" },
+  { d: 7000, cap: "Your first quest is one tap away.", sub: "your turn" },
 ];
 const TOTAL = SCENES.reduce((a, s) => a + s.d, 0);
-
-const SEARCH = [
-  ["Chicken bowl (generic)", "140 cal"],
-  ["Chicken burrito bowl, restaurant", "1,240 cal"],
-  ["chicken bowl w/ rice", "520 cal"],
-  ["Bowl, chicken, homemade??", "88 cal"],
-  ["Chicken teriyaki bowl", "760 cal"],
-];
 
 export function Vsl({ hasVideo }: { hasVideo?: boolean }) {
   const reduce = useReducedMotion();
@@ -70,24 +63,23 @@ export function Vsl({ hasVideo }: { hasVideo?: boolean }) {
   }
 
   return (
-    <div ref={box} className="relative overflow-hidden rounded-[28px] bg-night-2 ring-1 ring-white/10" data-testid="vsl">
+    <div ref={box} className="hud relative overflow-hidden !rounded-[28px]" data-testid="vsl">
       <div className="relative aspect-[4/5] w-full sm:aspect-video">
         <div className="dot-grid absolute inset-0 opacity-40" />
+        <div className="pointer-events-none absolute left-1/2 top-[-30%] h-[70%] w-[80%] -translate-x-1/2 rounded-full bg-violet/25 blur-[90px]" />
         <AnimatePresence mode="wait">
           <motion.div key={idx} className="absolute inset-0" initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.6, ease: [0.22, 0.8, 0.24, 1] }}>
             <SceneVisual i={idx} p={p} />
           </motion.div>
         </AnimatePresence>
-        {/* captions */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-night via-night/85 to-transparent px-5 pb-12 pt-20 sm:px-10">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-void via-void/85 to-transparent px-5 pb-12 pt-20 sm:px-10">
           <AnimatePresence mode="wait">
             <motion.div key={idx} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.5 }}>
-              <p className="label-mono text-lime/80">[ {SCENES[idx].sub} ]</p>
-              <p className="mt-2 max-w-[640px] font-serif text-[28px] font-semibold leading-[1.08] tracking-[-0.03em] text-cream sm:text-[42px]">{SCENES[idx].cap}</p>
+              <p className="label-mono text-cyan">[ {SCENES[idx].sub} ]</p>
+              <p className="mt-2 max-w-[700px] font-display text-[32px] font-bold uppercase leading-[1] sm:text-[50px]">{SCENES[idx].cap}</p>
             </motion.div>
           </AnimatePresence>
         </div>
-        {/* progress + controls */}
         <div className="absolute inset-x-5 bottom-4 flex items-center gap-3 sm:inset-x-10">
           <div className="flex flex-1 gap-1">
             {SCENES.map((s, i) => (
@@ -97,12 +89,12 @@ export function Vsl({ hasVideo }: { hasVideo?: boolean }) {
             ))}
           </div>
           <button aria-label={ended ? "Replay" : playing ? "Pause" : "Play"} onClick={() => { if (ended) { setT(0); setPlaying(true); } else setPlaying(!playing); }}
-            className="grid size-9 place-items-center rounded-full bg-white/10 text-cream backdrop-blur transition hover:bg-white/20">
+            className="grid size-9 place-items-center rounded-full bg-white/10 backdrop-blur transition hover:bg-white/20">
             {ended ? <RotateCcw className="size-4" /> : playing ? <Pause className="size-4" /> : <Play className="size-4" />}
           </button>
         </div>
         {ended && (
-          <a href="#try" className="absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-lime px-7 py-4 text-[16px] font-semibold text-night shadow-[0_0_40px_rgb(200_255_61/0.4)]">Snap my macros</a>
+          <Link href="/signup" className="absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-lime px-7 py-4 text-[16px] font-semibold text-void shadow-[0_0_40px_rgb(200_255_61/0.4)]">Start my Snack Quest</Link>
         )}
       </div>
     </div>
@@ -110,118 +102,109 @@ export function Vsl({ hasVideo }: { hasVideo?: boolean }) {
 }
 
 function SceneVisual({ i, p }: { i: number; p: number }) {
-  const center = "absolute inset-x-0 top-[8%] bottom-[34%] flex items-center justify-center px-6";
+  const center = "absolute inset-x-0 top-[6%] bottom-[36%] flex items-center justify-center px-6";
   switch (i) {
     case 0: {
-      const mins = Math.floor(p * 9.5);
+      const tags: [string, number, string][] = [["Headset", 129, "text-pink"], ["Controller", 69, "text-cyan"], ["Keyboard", 149, "text-violet"]];
       return (
         <div className={center}>
-          <div className="text-center">
-            <div className="font-mono text-[72px] font-medium tabular-nums text-cream sm:text-[120px]">{String(mins).padStart(2, "0")}:{String(Math.floor((p * 570) % 60)).padStart(2, "0")}</div>
-            <p className="font-mono text-[13px] uppercase tracking-[0.2em] text-tomato">time spent logging one lunch</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {tags.map(([n, v, c], k) => (
+              <div key={n} className="hud px-5 py-4 text-center transition-all duration-500" style={{ opacity: p > k * 0.18 ? 1 : 0, transform: `translateY(${p > k * 0.18 ? 0 : 12}px)` }}>
+                <p className="label-mono text-fg-soft">{n}</p>
+                <p className={cn("font-display text-[44px] font-bold tabular sm:text-[60px]", c)}>${Math.round(v * Math.min(1, p * 1.6))}</p>
+              </div>
+            ))}
           </div>
         </div>
       );
     }
-    case 1:
+    case 1: {
+      const mins = Math.floor(p * 192);
       return (
         <div className={center}>
-          <div className="w-full max-w-[420px] rounded-[20px] bg-cream p-4 text-ink shadow-2xl">
-            <div className="flex items-center gap-2 rounded-xl bg-paper px-3 py-2.5 text-[15px]">
-              <Search className="size-4 text-ink-soft" />
-              <span>{"chicken bowl".slice(0, Math.ceil(Math.min(1, p * 3) * 12))}</span>
-              <span className="h-4 w-0.5 animate-[blink_1s_steps(1)_infinite] bg-ink" />
-            </div>
-            <ul className="mt-2 divide-y divide-ink/10">
-              {SEARCH.map(([n, c], k) => (
-                <li key={n} className="flex justify-between py-2.5 text-[14px] transition-opacity duration-500" style={{ opacity: p > 0.3 + k * 0.08 ? 1 : 0 }}>
-                  <span>{n}</span><span className={cn("font-mono", k % 2 ? "text-tomato" : "text-ink-soft")}>{c}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="grid w-full max-w-[460px] grid-cols-2 gap-3">
+            <div className="hud p-4 text-center"><p className="label-mono text-fg-soft">played tonight</p><p className="font-display text-[44px] font-bold tabular text-fg">{Math.floor(mins / 60)}h {String(mins % 60).padStart(2, "0")}m</p></div>
+            <div className="hud p-4 text-center"><p className="label-mono text-fg-soft">snacks</p><p className="font-display text-[44px] font-bold tabular text-fg">{1 + Math.floor(p * 3)}</p></div>
+            <div className="hud col-span-2 p-4 text-center"><p className="label-mono text-fg-soft">rewards earned</p><p className="font-display text-[56px] font-bold text-pink">0</p></div>
           </div>
         </div>
       );
+    }
     case 2:
       return (
         <div className={center}>
-          <div className="grid grid-cols-7 gap-2 sm:gap-3">
-            {Array.from({ length: 14 }).map((_, k) => {
-              const logged = k < 6 || (k === 7 && p < 0.5);
-              const show = p > k / 16;
-              return (
-                <div key={k} className={cn("grid size-10 place-items-center rounded-xl text-[13px] font-semibold transition-all duration-500 sm:size-14",
-                  !show ? "opacity-0" : logged ? "bg-lime text-night" : "bg-white/[0.06] text-cream/30")}>{k + 1}</div>
-              );
-            })}
-          </div>
+          <motion.div initial={{ y: 40, opacity: 0, rotate: -3 }} animate={{ y: 0, opacity: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 160, damping: 16, delay: 0.3 }}
+            className="hud rarity-legendary rarity-stripe w-full max-w-[420px] p-5">
+            <p className="label-mono text-lime">legendary</p>
+            <p className="mt-1 font-display text-[34px] font-bold uppercase leading-none">Crust Shield Protocol</p>
+            <p className="mt-2 text-[15px] text-fg/85">Save your pizza crust. Eat it only after your first win of the night.</p>
+            <p className="mt-3 inline-block rounded-full bg-lime px-3 py-1 font-display text-[20px] font-bold text-void">+100 pts</p>
+          </motion.div>
         </div>
       );
     case 3:
       return (
         <div className={center}>
-          <div className="relative grid size-40 place-items-center rounded-full border-4 border-cream/80 sm:size-52">
-            <div className={cn("size-28 rounded-full bg-cream transition-transform duration-200 sm:size-40", p > 0.55 && p < 0.62 && "scale-90")} />
-            <Camera className="absolute size-12 text-night" />
-            {p > 0.58 && <div className="absolute inset-0 animate-ping rounded-full bg-white/30" />}
+          <div className="relative aspect-[4/3] w-full max-w-[400px] overflow-hidden rounded-[22px] bg-gradient-to-br from-[#2a1650] via-[#1a1236] to-[#0c0a16] ring-1 ring-white/10">
+            <div className="absolute bottom-[14%] left-[10%] h-[44%] w-[58%] rounded-[12px] bg-gradient-to-b from-cyan/30 to-violet/30 ring-1 ring-cyan/40"><p className="mt-[14%] text-center font-display text-[20px] font-bold uppercase text-cyan/90">Victory</p></div>
+            <div className="absolute bottom-[10%] right-[8%] size-[38%] rounded-full bg-[conic-gradient(from_200deg,#ffb84d,#e8742f,#ffb84d)] ring-4 ring-[#f6d08a]/60" />
+            <div className="absolute inset-x-0 h-0.5 bg-lime shadow-[0_0_14px_var(--lime)]" style={{ top: `${10 + Math.abs(Math.sin(p * Math.PI * 2)) * 80}%` }} />
+            {["tl", "tr", "bl", "br"].map((c) => <span key={c} className={cn("absolute size-6 border-lime", c[0] === "t" ? "top-3 border-t-2" : "bottom-3 border-b-2", c[1] === "l" ? "left-3 border-l-2" : "right-3 border-r-2")} />)}
+            <Camera className="absolute left-4 top-4 size-5 text-white/70" />
+            {p > 0.55 && (
+              <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 16 }} className="absolute inset-0 grid place-items-center bg-void/50">
+                <span className="glow-edge flex items-center gap-2 rounded-full bg-lime px-5 py-2.5 font-display text-[22px] font-bold uppercase text-void"><Check className="size-5" strokeWidth={3} />Quest cleared · +60</span>
+              </motion.div>
+            )}
           </div>
         </div>
       );
-    case 4:
+    case 4: {
+      const m = Math.floor(p * 48);
       return (
         <div className={center}>
-          <div className="relative aspect-square h-full max-h-[340px] overflow-hidden rounded-[22px]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/examples/chicken-bowl.svg" alt="" className="h-full w-full object-cover" />
-            <div className="absolute inset-x-2 h-[3px] rounded-full bg-lime shadow-[0_0_24px_6px_rgb(200_255_61/0.55)]" style={{ top: `${8 + 84 * Math.abs(Math.sin(p * Math.PI * 1.5))}%` }} />
-            {[["white rice", 30, 28], ["grilled chicken", 70, 30], ["avocado", 30, 72], ["broccoli", 72, 66], ["black beans", 50, 82]].map(([n, x, y], k) => (
-              <span key={n as string} className="absolute -translate-x-1/2 rounded-full bg-cream px-2.5 py-1 text-[12px] font-medium text-ink shadow-lg transition-all duration-500"
-                style={{ left: `${x}%`, top: `${y}%`, opacity: p > 0.25 + k * 0.1 ? 1 : 0, transform: `translate(-50%, ${p > 0.25 + k * 0.1 ? 0 : 8}px)` }}>
-                <span className="mr-1 inline-block size-1.5 rounded-full bg-tomato align-middle" />{n}
-              </span>
-            ))}
+          <div className="hud w-full max-w-[400px] p-5">
+            <div className="flex items-center gap-3"><Gamepad2 className="size-6 text-cyan" /><p className="font-display text-[24px] font-bold uppercase">Fortnite session</p><Timer className="ml-auto size-5 text-lime" /></div>
+            <p className="mt-3 font-display text-[64px] font-bold leading-none tabular">{String(m).padStart(2, "0")}:{String(Math.floor((p * 2880) % 60)).padStart(2, "0")}</p>
+            <p className="mt-2 text-[15px] text-fg-soft">1 point every 5 minutes played · <span className="font-semibold text-lime tabular">+{Math.floor(m / 5)} pts</span></p>
           </div>
         </div>
       );
+    }
     case 5: {
-      const e = 1 - Math.pow(1 - Math.min(1, p * 1.6), 3);
+      const v = Math.min(1, p * 1.25);
       return (
         <div className={center}>
-          <div className="w-full max-w-[460px] rounded-[22px] bg-cream p-5 text-ink sm:p-7">
-            <p className="label-mono text-ink-soft">example plate · chicken bowl</p>
-            <p className="mt-1 font-serif text-[56px] font-semibold leading-none tabular-nums sm:text-[72px]">{Math.round(640 * e)}<span className="ml-2 text-[18px] font-normal text-ink-soft">cal</span></p>
-            <div className="mt-4 grid grid-cols-3 gap-2">
-              {[["Protein", 42, "#E5482F"], ["Carbs", 68, "#D9A441"], ["Fat", 21, "#6B7B3A"]].map(([n, v, c]) => (
-                <div key={n as string} className="rounded-xl p-3" style={{ background: (c as string) + "1f" }}>
-                  <div className="text-[12px] text-ink-soft">{n}</div>
-                  <div className="font-serif text-[26px] font-semibold tabular-nums" style={{ color: c as string }}>{Math.round((v as number) * e)}g</div>
+          <div className="w-full max-w-[460px]">
+            <div className="flex items-center gap-3"><span className="grid size-14 place-items-center rounded-[16px] bg-gradient-to-br from-violet/50 to-cyan/40"><Headphones className="size-7" /></span><div><p className="font-display text-[28px] font-bold uppercase leading-none">Pro Gaming Headset</p><p className="text-[14px] text-fg-soft tabular">{Math.round(v * 30000).toLocaleString("en-US")} / 30,000 pts</p></div></div>
+            <div className="xp-track mt-4 h-4"><div className="xp-fill" style={{ width: `${v * 100}%` }} /></div>
+            {v >= 1 && <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-4 text-center font-display text-[30px] font-bold uppercase text-lime">Reward unlocked</motion.p>}
+          </div>
+        </div>
+      );
+    }
+    case 6:
+      return (
+        <div className={center}>
+          <div className="flex gap-2 sm:gap-3">
+            {Array.from({ length: 7 }).map((_, k) => {
+              const on = p > k / 8;
+              return (
+                <div key={k} className={cn("grid size-11 place-items-center rounded-[14px] transition-all duration-300 sm:size-16", on ? "bg-pink/20 text-pink shadow-[0_0_20px_-4px_var(--pink)]" : "bg-white/5 text-white/20")}>
+                  <Flame className="size-5 sm:size-7" />
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
       );
-    }
-    case 6: {
-      const n = Math.min(30, Math.round(p * 34));
-      return (
-        <div className={center}>
-          <div className="text-center">
-            <Flame className="mx-auto size-16 text-tomato" fill="#E5482F" />
-            <div className="mt-2 font-serif text-[96px] font-semibold leading-none tabular-nums text-cream sm:text-[128px]">{n}</div>
-            <p className="font-mono text-[13px] uppercase tracking-[0.2em] text-lime">day streak</p>
-          </div>
-        </div>
-      );
-    }
     default:
       return (
         <div className={center}>
-          <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-lime/30 blur-2xl animate-breathe" />
-            <div className="relative grid size-32 place-items-center rounded-[34px] bg-tomato shadow-2xl sm:size-40">
-              <Camera className="size-14 text-white" strokeWidth={1.6} />
-            </div>
+          <div className="text-center">
+            <p className="font-display text-[56px] font-bold uppercase leading-none sm:text-[88px]">Snack. Play.</p>
+            <p className="text-neon font-display text-[56px] font-bold uppercase leading-none sm:text-[88px]">Unlock.</p>
           </div>
         </div>
       );

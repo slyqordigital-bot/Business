@@ -64,7 +64,7 @@ export function FunnelProvider({ children, onUnlocked, onPaywallClosed }: { chil
 
   const onPaymentsOff = useCallback(() => {
     setCk(null);
-    setNotice("Payments open in a moment. Your meal is saved.");
+    setNotice("Payments open in a moment. Your Snack Quest is saved.");
   }, []);
 
   const value = useMemo(() => ({ unlock, openPaywall, openUpgrade: setUp }), [unlock, openPaywall]);
@@ -75,7 +75,7 @@ export function FunnelProvider({ children, onUnlocked, onPaywallClosed }: { chil
       <Sheet open={Boolean(signup)} onClose={() => setSignup(null)} variant="bottom" label="Sign up" z={60}>
         <div className="overflow-y-auto px-5 pb-8 pt-14 md:px-8" data-testid="signup-sheet">
           <LogoMark className="size-10" />
-          <h2 className="mt-4 font-serif text-[28px] font-semibold leading-tight tracking-[-0.03em]">{signup?.title}</h2>
+          <h2 className="mt-4 font-display text-[30px] font-bold uppercase leading-[1.02]">{signup?.title}</h2>
           <p className="mb-6 mt-1.5 text-[15px] text-fg-soft">Free account. No card needed.</p>
           <AuthForm compact onDone={async () => {
             const s = signup;
@@ -98,13 +98,13 @@ export function FunnelProvider({ children, onUnlocked, onPaywallClosed }: { chil
           {up?.reason && <p className="text-[14px] text-fg-soft">{up.reason}</p>}
           {!nextPlan ? <div className="skeleton mt-3 h-40" /> : (
             <>
-              <h2 className="mt-1 font-serif text-[28px] font-semibold leading-tight tracking-[-0.03em]">Get more with {shortName(nextPlan.name)}</h2>
+              <h2 className="mt-1 font-display text-[30px] font-bold uppercase leading-[1.02]">Get more with {shortName(nextPlan.name)}</h2>
               <ul className="mt-5 space-y-3">
-                {up && ADDS[up.level].map((a) => <li key={a} className="flex gap-2.5 text-[16px]"><Check className="mt-0.5 size-5 shrink-0 text-olive" strokeWidth={2.5} />{a}</li>)}
+                {up && ADDS[up.level].map((a) => <li key={a} className="flex gap-2.5 text-[16px]"><Check className="mt-0.5 size-5 shrink-0 text-lime" strokeWidth={2.5} />{a}</li>)}
               </ul>
-              <p className="mt-6"><span className="font-serif text-[34px] font-semibold">{nextPlan.per_day}</span><span className="text-fg-soft"> / day · ${(nextPlan.price_cents / 100).toFixed(2)} a month</span></p>
+              <p className="mt-6"><span className="font-display text-[38px] font-bold tabular">{nextPlan.per_day}</span><span className="text-fg-soft"> / day · ${(nextPlan.price_cents / 100).toFixed(2)} a month</span></p>
               <button onClick={() => { const p = nextPlan; setUp(null); setCk({ plan: p, period: "month" }); }} data-testid="upgrade-continue"
-                className="mt-5 h-[58px] w-full rounded-full bg-tomato text-[17px] font-semibold text-white transition active:scale-[0.97]">Upgrade to {shortName(nextPlan.name)}</button>
+                className="mt-5 h-[58px] w-full rounded-full bg-lime text-[17px] font-semibold text-void transition active:scale-[0.97]">Upgrade to {shortName(nextPlan.name)}</button>
               <p className="mt-2.5 text-center text-[13px] text-fg-soft">Your current plan stops at the end of its period. Never billed twice.</p>
             </>
           )}

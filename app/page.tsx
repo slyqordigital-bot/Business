@@ -1,32 +1,39 @@
 import fs from "node:fs";
 import path from "node:path";
 import { TopBar } from "@/components/landing/TopBar";
-import { Scanner } from "@/components/landing/Scanner";
+import { NotifPhone } from "@/components/landing/NotifPhone";
 import { Vsl } from "@/components/landing/Vsl";
 import { Problem, HowItWorks, Features, Changes, Compare, Questions, FinalCta, Footer, StickyCta } from "@/components/landing/Sections";
+import { MainButton } from "@/components/ui/MainButton";
 import { KwopFlow } from "@/components/KwopFlow";
 
 export default function Home() {
   const hasVideo = fs.existsSync(path.join(process.cwd(), "public", "vsl.mp4"));
   return (
-    <main className="bg-night">
+    <main className="bg-void">
       <KwopFlow />
       <TopBar />
-      <section className="relative overflow-hidden px-4 pb-14 pt-[104px] text-cream md:pb-24 md:pt-[150px]">
+      <section className="relative overflow-hidden px-4 pb-14 pt-[108px] md:pb-24 md:pt-[150px]">
         <div className="dot-grid pointer-events-none absolute inset-0" />
-        <div className="pointer-events-none absolute left-1/2 top-[-120px] h-[420px] w-[760px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(229_72_47/0.35),rgb(217_164_65/0.12),transparent)] blur-2xl" />
-        <div className="relative mx-auto max-w-[880px] text-center">
-          <p className="label-mono text-lime/90">[ ai macro tracker ]</p>
-          <h1 className="title-xl mt-5 text-[42px] sm:text-[56px] md:text-[78px]">
-            Snap your plate.<br /><span className="title-fade">Get your macros.</span>
-          </h1>
-          <p className="mx-auto mt-5 max-w-[560px] text-[17px] leading-relaxed text-cream/70 md:text-[19px]">
-            Track a <b className="font-semibold text-cream">500-calorie lunch in 2 seconds</b>, without typing anything. Calories, protein, carbs and fat from one photo.
-          </p>
-        </div>
-        <div className="relative mx-auto mt-9 max-w-[880px] md:mt-12">
-          <Scanner />
-          <p className="mt-5 text-center font-mono text-[12px] uppercase tracking-[0.16em] text-cream/45">Free to try · No account · Ready in seconds</p>
+        <div className="pointer-events-none absolute left-1/2 top-[-160px] h-[480px] w-[860px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(139_92_246/0.45),rgb(34_225_255/0.12),transparent)] blur-2xl" />
+        <div className="relative mx-auto grid max-w-[1120px] items-center gap-12 md:grid-cols-[1.15fr_1fr] md:gap-8">
+          <div className="text-center md:text-left">
+            <p className="label-mono text-cyan">[ snacks × games × rewards ]</p>
+            <h1 className="title-xl mt-5 text-[46px] sm:text-[60px] md:text-[80px]">
+              Snack. Play.<br /><span className="text-neon">Unlock real gear.</span>
+            </h1>
+            <p className="mx-auto mt-5 max-w-[520px] text-[17px] leading-relaxed text-fg-soft md:mx-0 md:text-[19px]">
+              Turn your <b className="font-semibold text-fg">snack breaks</b> into quests and your <b className="font-semibold text-fg">playtime</b> into points you trade for gift cards and gaming gear.
+            </p>
+            <div id="hero-cta" className="mt-8 flex justify-center md:justify-start">
+              <MainButton href="/signup" data-testid="hero-cta">Start my Snack Quest</MainButton>
+            </div>
+            <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.1em] text-fg-soft sm:text-[12px] sm:tracking-[0.16em]">Free to start · No card · Your quest in 60 seconds</p>
+          </div>
+          <div className="relative">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 size-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(200_255_61/0.18),transparent)]" />
+            <NotifPhone />
+          </div>
         </div>
       </section>
       <section className="px-4 pb-16 md:pb-28">

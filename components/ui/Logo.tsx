@@ -1,22 +1,29 @@
 import { cn } from "@/lib/utils";
 
-/** MacroSnap mark: a plate inside scan brackets. */
+/** SnackQuest mark: a controller-shaped bite with a lime quest star. */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={cn("size-7", className)} aria-hidden>
-      <rect width="32" height="32" rx="9" fill="#E5482F" />
-      <path d="M7 11V8.5A1.5 1.5 0 0 1 8.5 7H11M21 7h2.5A1.5 1.5 0 0 1 25 8.5V11M25 21v2.5a1.5 1.5 0 0 1-1.5 1.5H21M11 25H8.5A1.5 1.5 0 0 1 7 23.5V21" stroke="#FBF6EC" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <circle cx="16" cy="16" r="5.6" fill="#FBF6EC" />
-      <path d="M16 10.4a5.6 5.6 0 0 1 5.6 5.6H16z" fill="#C8FF3D" />
+      <defs>
+        <linearGradient id="sqg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#8B5CF6" />
+          <stop offset="1" stopColor="#22E1FF" />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="9" fill="url(#sqg)" />
+      <path d="M8.5 13.2c0-2.3 1.8-4.2 4.1-4.2h6.8c2.3 0 4.1 1.9 4.1 4.2l.9 6.3c.3 2-1.3 3.7-3.3 3.7-1.1 0-2.1-.6-2.7-1.5L17.3 20h-2.6l-1.1 1.7c-.6.9-1.6 1.5-2.7 1.5-2 0-3.6-1.8-3.3-3.7z" fill="#07060D" />
+      <circle cx="24.3" cy="9.6" r="2.6" fill="#07060D" />
+      <path d="M12 13.4v3.2M10.4 15h3.2" stroke="#C8FF3D" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="m20.2 13.1.6 1.3 1.4.2-1 1 .2 1.4-1.2-.7-1.2.7.2-1.4-1-1 1.4-.2z" fill="#C8FF3D" />
     </svg>
   );
 }
 
-export function Logo({ className, dark }: { className?: string; dark?: boolean }) {
+export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
       <LogoMark />
-      <span className={cn("font-serif text-[19px] font-semibold tracking-[-0.03em]", dark ? "text-cream" : "text-fg")}>MacroSnap</span>
+      <span className="font-display text-[21px] font-bold uppercase tracking-[0.02em] text-fg">Snack<span className="text-lime">Quest</span></span>
     </span>
   );
 }
