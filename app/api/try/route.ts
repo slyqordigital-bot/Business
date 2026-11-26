@@ -70,6 +70,8 @@ export async function POST(req: Request) {
   } catch (e) {
     if (e instanceof AiError && e.code === "not_food")
       return NextResponse.json({ error: "not_food", message: "We couldn't spot any food in that photo. Try a clear shot of your plate from above." }, { status: 422 });
+    if (e instanceof AiError && e.code === "quota")
+      return NextResponse.json({ error: "offline", message: "Scanning is very busy right now. Please try again in a little while." }, { status: 503 });
     if (e instanceof AiError && e.code === "not_configured")
       return NextResponse.json({ error: "offline", message: "The scanner opens in a moment. Please try again shortly." }, { status: 503 });
     return NextResponse.json({ error: "failed", message: "The scan didn't go through. Try again." }, { status: 502 });

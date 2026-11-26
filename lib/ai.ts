@@ -90,7 +90,7 @@ async function flashModels(ai: GoogleGenAI) {
   const ver = (n: string) => parseFloat(n.match(/^gemini-(\d+(?:\.\d+)?)/)?.[1] || "0");
   // newest version first; a stable name beats a preview of the same version
   names.sort((a, b) => ver(b) - ver(a) || Number(a.includes("preview")) - Number(b.includes("preview")) || a.length - b.length);
-  modelsCache = names.length ? names : ["gemini-2.5-flash"];
+  modelsCache = names.length ? names : ["gemini-flash-latest"];
   console.log("[ai] flash models", modelsCache.slice(0, 6));
   return modelsCache;
 }
@@ -105,7 +105,7 @@ export function aiReady() {
 }
 
 export class AiError extends Error {
-  constructor(public code: "not_configured" | "not_food" | "failed", msg?: string) {
+  constructor(public code: "not_configured" | "not_food" | "failed" | "quota", msg?: string) {
     super(msg || code);
   }
 }
@@ -116,8 +116,8 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
 
   // newest first; the model that last answered goes first; each attempt is time-boxed so a busy model falls back
   const all = await flashModels(ai);
-  // newest first, then the long-standing 2.5 Flash as a dependable fallback, then the next-newest
-  const order = [...new Set([...(lastGood ? [lastGood] : []), all[0], ...(process.env.GEMINI_MODEL ? [] : ["gemini-2.5-flash"]), ...all.slice(1, 2)])];
+  // newest first, then the next-newest if it is busy
+  const order = [...new Set([...(lastGood ? [lastGood] : []), ...all.slice(0, 2)])];
   const deadline = Date.now() + 50_000;
   let lastErr: unknown;
   for (const model of order) {
@@ -138,7 +138,7 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
           responseSchema,
           temperature: 0.2,
           thinkingConfig: thinking(model),
-          abortSignal: AbortSignal.timeout(Math.min(16_000, left)),
+          abortSignal: AbortSignal.timeout(Math.min(25_000, left)),
         },
       });
       const parsed = PlateSchema.parse(JSON.parse(res.text || "{}"));
@@ -156,6 +156,8 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
       return { ...parsed, items, totals: sumItems(items) };
     } catch (e) {
       if (e instanceof AiError) throw e;
+      // the key's quota is shared: no point trying another model
+      if ((e as { status?: number })?.status === 429) { console.error("[ai] quota reached", model); throw new AiError("quota"); }
       console.warn("[ai] model failed, trying the next one", model, `${Date.now() - t0} ms`, (e as Error)?.message?.slice(0, 160));
       if (lastGood === model) lastGood = null;
       lastErr = e;
