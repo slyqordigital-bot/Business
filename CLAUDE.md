@@ -50,3 +50,20 @@ Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + l
 
 ## Verification loop (after every feature)
 `npm run dev`, `node scripts/shot.mjs` screenshots at 390×844 and 1440×900, look at every image, zero console errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the funnel (never pays).
+
+## Build status (2026-11-26)
+Built and verified locally (screenshots at 390 and 1440, zero console errors, `npm run build` + `npm run lint` clean):
+landing page with the live scanner, scan animation, locked teaser, motion VSL; sign-up sheet, /signup, /login, /forgot, /reset, Google callback;
+paywall (real Kwop plans), in-page Whop checkout sheet, confirm + unlock film, /pricing, /dashboard return; app: Today, Scan, History (trends, week by week, CSV), Settings (goals), Account (billing, cancel, delete); meal page (edit portions, delete, share); public share page + OG images; legal pages, 404/error, manifest + icons.
+Kwop: plans saved (option B) and `/checkout` verified to return a Whop embed.
+
+### Not done yet — needs the owner's keys (cloud environment "Business" → Edit → Environment variables), then a new session
+- `SUPABASE_ACCESS_TOKEN` (supabase.com/dashboard/account/tokens): create project `macrosnap-3`, push `supabase/migrations`, auth config (mailer_autoconfirm true, site_url, uri_allow_list). Hosts `api.supabase.com` and `*.supabase.co` must be allowed.
+- `VERCEL_TOKEN` (vercel.com/account/tokens): project `macrosnap-3`, env vars from `.env.example`, deploy. Hosts `api.vercel.com` / `vercel.com` must be allowed.
+- `GEMINI_API_KEY` (aistudio.google.com/apikey): the scanner answers "opens in a moment" until it is set.
+- Then: Google sign-in (set `NEXT_PUBLIC_GOOGLE_AUTH=1` once enabled), run `npm run e2e` against the live URL, POST KWOP_API/connect with the production URL, security pass (RLS test with two users).
+
+### Dev notes
+- Example plates in `public/examples/*.svg` are illustrations (no stock-photo host was reachable); swap for real photos with the same names (.jpg) and update `EXAMPLES` in `components/landing/Scanner.tsx`.
+- Locked results never send numbers to the browser (`lib/meals.ts` `toView`).
+- `scripts/shot.mjs` (screenshots), `scripts/flow-shot.mjs` (funnel states with a mocked AI answer, dev only), `tests/e2e.spec.ts` (real funnel, needs live services).
