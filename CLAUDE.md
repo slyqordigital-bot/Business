@@ -67,3 +67,10 @@ Kwop: plans saved (option B) and `/checkout` verified to return a Whop embed.
 - Example plates in `public/examples/*.svg` are illustrations (no stock-photo host was reachable); swap for real photos with the same names (.jpg) and update `EXAMPLES` in `components/landing/Scanner.tsx`.
 - Locked results never send numbers to the browser (`lib/meals.ts` `toView`).
 - `scripts/shot.mjs` (screenshots), `scripts/flow-shot.mjs` (funnel states with a mocked AI answer, dev only), `tests/e2e.spec.ts` (real funnel, needs live services).
+
+## Live (2026-11-26)
+- Production: https://macrosnap-3.vercel.app (Vercel project `macrosnap-3`, team slyqordigital-bot). Supabase project `macrosnap-3` (ref `ugucwehaptrmkctpibdl`, us-east-1, org "MacroSnap"), migration applied, autoconfirm on, site_url set.
+- Tokens for api.supabase.com / api.vercel.com are saved as network secrets on the "Business" environment (use `--token proxyinjected` with the Vercel CLI).
+- Gemini key is on Vercel as `Gemini_Api_Key` (lib/ai.ts reads either spelling). `lib/ai.ts` lists the key's Flash models and uses the newest (gemini-3.8-flash on 2026-11-26), falls back to the next one; gemini-2.5-flash is retired.
+- BLOCKER: the key is on Google's free tier (20 requests/day per model) and 3.x Flash calls took >16 s under load. Billing must be enabled on the key's Google project before launch. Then: live scan test, Kwop /connect, Google sign-in, e2e, RLS check.
+- Test account created on live: livecheck+1795730387788@macrosnap-test.com.
