@@ -1,5 +1,5 @@
 import "server-only";
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel, Type } from "@google/genai";
 import { z } from "zod";
 
 /** The only place MacroSnap talks to an AI model (Google Gemini Flash). */
@@ -69,12 +69,13 @@ const PROMPT = `You are a registered dietitian estimating the nutrition of a mea
 List every distinct food or drink you can see (sauces and oils count when visible). Estimate each edible portion in grams from visual cues (plate size ~26 cm, utensils, hands), then its calories, protein, carbs and fat using USDA FoodData Central values.
 Be realistic, not optimistic: restaurant portions are large, oil and dressing add fat. Use US English names. Never judge the person or their body.`;
 
-let modelCache: string | null = null;
+let modelsCache: string[] | null = null;
+let lastGood: string | null = null;
 
-/** The newest Gemini Flash model this key can use (or GEMINI_MODEL if set). */
-async function pickModel(ai: GoogleGenAI) {
-  if (process.env.GEMINI_MODEL) return process.env.GEMINI_MODEL;
-  if (modelCache) return modelCache;
+/** Gemini Flash models this key can use, newest first (or GEMINI_MODEL if set). */
+async function flashModels(ai: GoogleGenAI) {
+  if (process.env.GEMINI_MODEL) return [process.env.GEMINI_MODEL];
+  if (modelsCache) return modelsCache;
   const names: string[] = [];
   try {
     const pager = await ai.models.list({ config: { pageSize: 200 } });
@@ -89,9 +90,14 @@ async function pickModel(ai: GoogleGenAI) {
   const ver = (n: string) => parseFloat(n.match(/^gemini-(\d+(?:\.\d+)?)/)?.[1] || "0");
   // newest version first; a stable name beats a preview of the same version
   names.sort((a, b) => ver(b) - ver(a) || Number(a.includes("preview")) - Number(b.includes("preview")) || a.length - b.length);
-  modelCache = names[0] || "gemini-2.5-flash";
-  console.log("[ai] using model", modelCache, "from", names.slice(0, 6));
-  return modelCache;
+  modelsCache = names.length ? names : ["gemini-2.5-flash"];
+  console.log("[ai] flash models", modelsCache.slice(0, 6));
+  return modelsCache;
+}
+
+/** Keep the photo reading fast: minimal "thinking" (3.x uses levels, 2.x a token budget). */
+function thinking(model: string) {
+  return /^gemini-[3-9]/.test(model) ? { thinkingLevel: ThinkingLevel.LOW } : { thinkingBudget: 0 };
 }
 
 export function aiReady() {
@@ -108,21 +114,34 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
   if (!aiReady()) throw new AiError("not_configured");
   const ai = new GoogleGenAI({ apiKey: KEY() });
 
+  // newest first; the model that last answered goes first; each attempt is time-boxed so a busy model falls back
+  const all = await flashModels(ai);
+  const order = [...new Set([...(lastGood ? [lastGood] : []), ...all.slice(0, 3)])];
+  const deadline = Date.now() + 50_000;
   let lastErr: unknown;
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (const model of order) {
+    const left = deadline - Date.now();
+    if (left < 6_000) break;
     try {
       const res = await ai.models.generateContent({
-        model: await pickModel(ai),
+        model,
         contents: [
           {
             role: "user",
             parts: [{ inlineData: { mimeType: mime, data: image.toString("base64") } }, { text: PROMPT }],
           },
         ],
-        config: { responseMimeType: "application/json", responseSchema, temperature: 0.2 },
+        config: {
+          responseMimeType: "application/json",
+          responseSchema,
+          temperature: 0.2,
+          thinkingConfig: thinking(model),
+          abortSignal: AbortSignal.timeout(Math.min(20_000, left)),
+        },
       });
       const parsed = PlateSchema.parse(JSON.parse(res.text || "{}"));
       if (!parsed.is_food || parsed.items.length === 0) throw new AiError("not_food");
+      lastGood = model;
       const items = parsed.items.map((i) => ({
         ...i,
         grams: Math.round(i.grams),
@@ -134,6 +153,8 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
       return { ...parsed, items, totals: sumItems(items) };
     } catch (e) {
       if (e instanceof AiError) throw e;
+      console.warn("[ai] model failed, trying the next one", model, (e as Error)?.message?.slice(0, 160));
+      if (lastGood === model) lastGood = null;
       lastErr = e;
     }
   }
