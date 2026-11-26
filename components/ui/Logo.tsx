@@ -1,0 +1,22 @@
+import { cn } from "@/lib/utils";
+
+/** MacroSnap mark: a plate inside scan brackets. */
+export function LogoMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" className={cn("size-7", className)} aria-hidden>
+      <rect width="32" height="32" rx="9" fill="#E5482F" />
+      <path d="M7 11V8.5A1.5 1.5 0 0 1 8.5 7H11M21 7h2.5A1.5 1.5 0 0 1 25 8.5V11M25 21v2.5a1.5 1.5 0 0 1-1.5 1.5H21M11 25H8.5A1.5 1.5 0 0 1 7 23.5V21" stroke="#FBF6EC" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <circle cx="16" cy="16" r="5.6" fill="#FBF6EC" />
+      <path d="M16 10.4a5.6 5.6 0 0 1 5.6 5.6H16z" fill="#C8FF3D" />
+    </svg>
+  );
+}
+
+export function Logo({ className, dark }: { className?: string; dark?: boolean }) {
+  return (
+    <span className={cn("inline-flex items-center gap-2", className)}>
+      <LogoMark />
+      <span className={cn("font-serif text-[19px] font-semibold tracking-[-0.03em]", dark ? "text-cream" : "text-fg")}>MacroSnap</span>
+    </span>
+  );
+}
