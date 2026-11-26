@@ -3,7 +3,6 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { z } from "zod";
 
 /** The only place MacroSnap talks to an AI model (Google Gemini Flash). */
-const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
 // the key may be saved as GEMINI_API_KEY or Gemini_Api_Key
 const KEY = () => process.env.GEMINI_API_KEY || process.env.Gemini_Api_Key || "";
 
@@ -70,6 +69,31 @@ const PROMPT = `You are a registered dietitian estimating the nutrition of a mea
 List every distinct food or drink you can see (sauces and oils count when visible). Estimate each edible portion in grams from visual cues (plate size ~26 cm, utensils, hands), then its calories, protein, carbs and fat using USDA FoodData Central values.
 Be realistic, not optimistic: restaurant portions are large, oil and dressing add fat. Use US English names. Never judge the person or their body.`;
 
+let modelCache: string | null = null;
+
+/** The newest Gemini Flash model this key can use (or GEMINI_MODEL if set). */
+async function pickModel(ai: GoogleGenAI) {
+  if (process.env.GEMINI_MODEL) return process.env.GEMINI_MODEL;
+  if (modelCache) return modelCache;
+  const names: string[] = [];
+  try {
+    const pager = await ai.models.list({ config: { pageSize: 200 } });
+    for await (const m of pager) {
+      const n = (m.name || "").replace(/^models\//, "");
+      const ok = (m.supportedActions || []).includes("generateContent");
+      if (ok && /^gemini-\d+(\.\d+)?-flash(-preview)?(-\d\d-\d{4})?$/.test(n)) names.push(n);
+    }
+  } catch (e) {
+    console.error("[ai] list models failed", e);
+  }
+  const ver = (n: string) => parseFloat(n.match(/^gemini-(\d+(?:\.\d+)?)/)?.[1] || "0");
+  // newest version first; a stable name beats a preview of the same version
+  names.sort((a, b) => ver(b) - ver(a) || Number(a.includes("preview")) - Number(b.includes("preview")) || a.length - b.length);
+  modelCache = names[0] || "gemini-2.5-flash";
+  console.log("[ai] using model", modelCache, "from", names.slice(0, 6));
+  return modelCache;
+}
+
 export function aiReady() {
   return Boolean(KEY());
 }
@@ -88,7 +112,7 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const res = await ai.models.generateContent({
-        model: MODEL,
+        model: await pickModel(ai),
         contents: [
           {
             role: "user",
