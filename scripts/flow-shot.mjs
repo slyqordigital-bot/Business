@@ -1,6 +1,5 @@
 // Captures the try-first funnel states with a mocked AI answer (dev check only, never shipped).
 import { chromium } from "playwright";
-import fs from "node:fs";
 const out = process.env.SHOT_DIR || "shots";
 const base = process.env.BASE_URL || "http://localhost:3000";
 const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });

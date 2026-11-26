@@ -1,4 +1,5 @@
 import "server-only";
+import { redirect } from "next/navigation";
 import { getUser, supabaseAdmin } from "../supabase/server";
 import { getPlan, getPlans, type PlanState, type PublicPlan } from "../kwop";
 import { QUOTAS, type Level } from "../plans";
@@ -69,4 +70,11 @@ export async function quota(userId: string, plan: PlanState) {
 
 export function nextPlan(plans: PublicPlan[], level: Level) {
   return plans.find((p) => p.level === level + 1) ?? null;
+}
+
+/** For pages inside the app: the context, or a redirect to log in. */
+export async function requireCtx(): Promise<Ctx> {
+  const ctx = await getCtx();
+  if (!ctx) redirect("/login");
+  return ctx;
 }

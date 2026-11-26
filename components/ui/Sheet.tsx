@@ -1,7 +1,10 @@
 "use client";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
+
+// open sheets, top-most last: only the top one reacts to Escape
+const stack: string[] = [];
 import { cn } from "@/lib/utils";
 
 /**
@@ -20,14 +23,21 @@ export function Sheet({ open, onClose, children, variant = "full", className, la
   dark?: boolean;
 }) {
   const reduce = useReducedMotion();
+  const id = useId();
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    stack.push(id);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && stack[stack.length - 1] === id) { e.stopImmediatePropagation(); onClose(); } };
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
-  }, [open, onClose]);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+      const i = stack.lastIndexOf(id);
+      if (i >= 0) stack.splice(i, 1);
+    };
+  }, [open, onClose, id]);
 
   return (
     <AnimatePresence>
@@ -52,7 +62,7 @@ export function Sheet({ open, onClose, children, variant = "full", className, la
           >
             {variant === "bottom" && <div className="mx-auto mt-2.5 h-1.5 w-10 shrink-0 rounded-full bg-fg/15 md:hidden" aria-hidden />}
             <button onClick={onClose} aria-label="Close"
-              className={cn("absolute top-3 z-10 grid size-10 place-items-center rounded-full transition hover:bg-fg/5 active:scale-95", closeSide === "left" ? "left-3" : "right-3", dark && "hover:bg-white/10")}>
+              className={cn("absolute top-3 z-20 grid size-10 place-items-center rounded-full backdrop-blur transition active:scale-95", dark ? "bg-night/70 hover:bg-white/10" : "bg-bg/85 hover:bg-surface-2", closeSide === "left" ? "left-3" : "right-3")}>
               <X className="size-5" />
             </button>
             {children}
