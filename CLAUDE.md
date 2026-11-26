@@ -32,8 +32,15 @@ Both MyFitnessPal and Lose It! really do this job (photo meal logging), but only
 - Kwop kit adapted: dark hero `#14120E` with dot grid and a warm glow, light cream sections alternating; floating top bar; breathing pill button; giant faded wordmark footer.
 - Honest limits shown in app: macros are AI estimates from a photo (±10–20 %), not medical advice.
 
-## Plans and quotas (server-counted per billing period) — filled after the owner picks prices
-See `lib/plans.ts` (quotas by plan position: 1st, 2nd, 3rd). Free visitors: 3 scans/day per device+IP, teaser only.
+## Plans and quotas (option B, saved in Kwop on 2026-11-26; server-counted per billing period)
+Names, ids and prices are always read from GET KWOP_API (never hardcoded). Quotas live in `lib/plans.ts`, matched by plan position (cheapest first).
+| Plan (Kwop id) | Price | Per day | Yearly (−20 %) | Tag | Quotas |
+|---|---|---|---|---|---|
+| Snack (1923) | $6.99/mo | $0.23 | $67/yr ($0.18/day) | For casual tracking | 40 scans/month, calorie + macro totals, 30 days of history |
+| **Plate (1924)** Most popular | $9.99/mo | $0.33 | $96/yr ($0.26/day) | For daily goals | 150 scans/month, per-food breakdown, unlimited history, streaks + trend charts |
+| Feast (1925) | $15.99/mo | $0.53 | $154/yr ($0.42/day) | For strict control | 400 scans/month, all of Plate, week-by-week comparisons, CSV export, priority scans |
+Free visitors: 3 scans/day per device + IP, teaser only (foods + one insight; numbers blurred).
+Locked on lower plans: Snack sees per-food breakdown and trends blurred ("Unlock with Plate"); Plate sees weekly comparison + CSV export locked ("Unlock with Feast").
 
 ## Kwop API (server only, `lib/kwop.ts`)
 `KWOP_API` env. GET → plans; POST /checkout {plan, period, email, k} → {embed, ref, fallback_url} (409 payments_off); POST /confirm {ref}; GET /plan?email= (cached 60 s); POST /cancel {email, except_ref?}; POST /event {type, email, detail} fire-and-forget; POST /connect {url}. `k` from ?k= → cookie `kwop_k` 30 days → profiles.k. Tracking script `https://kwop.io/flow.js` data-site `s_8619cfc2b1` on public pages only.
