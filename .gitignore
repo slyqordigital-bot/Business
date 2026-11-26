@@ -1,0 +1,6 @@
+KWOP-BUILD.md
+.env*
+!.env.example
+node_modules/
+.next/
+.vercel/
