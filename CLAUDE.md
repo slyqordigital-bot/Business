@@ -72,5 +72,9 @@ Kwop: plans saved (option B) and `/checkout` verified to return a Whop embed.
 - Production: https://macrosnap-3.vercel.app (Vercel project `macrosnap-3`, team slyqordigital-bot). Supabase project `macrosnap-3` (ref `ugucwehaptrmkctpibdl`, us-east-1, org "MacroSnap"), migration applied, autoconfirm on, site_url set.
 - Tokens for api.supabase.com / api.vercel.com are saved as network secrets on the "Business" environment (use `--token proxyinjected` with the Vercel CLI).
 - Gemini key is on Vercel as `Gemini_Api_Key` (lib/ai.ts reads either spelling). `lib/ai.ts` lists the key's Flash models and uses the newest (gemini-3.8-flash on 2026-11-26), falls back to the next one; gemini-2.5-flash is retired.
-- BLOCKER: the key is on Google's free tier (20 requests/day per model) and 3.x Flash calls took >16 s under load. Billing must be enabled on the key's Google project before launch. Then: live scan test, Kwop /connect, Google sign-in, e2e, RLS check.
+- Gemini billing enabled 2026-11-26 (paid tier); live scans take ~5 s on gemini-3.8-flash. The free tier (20 requests/day) is too small for production.
+- Kwop connected (POST /connect ok): https://kwop.io/macrosnap-3/app → the app.
+- Verified live: e2e funnel 3× on phone and computer (Whop checkout iframe loads in the sheet, never paid); RLS check with a second user (no cross-user reads/writes, photos private).
+- Left to do: Google sign-in (owner creates the OAuth client, then PATCH config/auth + NEXT_PUBLIC_GOOGLE_AUTH=1 and redeploy); Lighthouse pass; real food photos for the examples.
+- Note: the Whop checkout shows the owner's Whop store name ("Whop Wealth Academy") as the seller.
 - Test account created on live: livecheck+1795730387788@macrosnap-test.com.
