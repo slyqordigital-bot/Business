@@ -29,6 +29,8 @@ export const PlateSchema = z.object({
 export type Item = z.infer<typeof ItemSchema>;
 export type Plate = z.infer<typeof PlateSchema> & {
   totals: { kcal: number; protein: number; carbs: number; fat: number };
+  /** model and token counts, for cost checks (not stored) */
+  usage?: { model: string; input: number; output: number; thinking: number };
 };
 
 const responseSchema = {
@@ -153,11 +155,14 @@ export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> 
         carbs: Math.round(i.carbs * 10) / 10,
         fat: Math.round(i.fat * 10) / 10,
       }));
-      return { ...parsed, items, totals: sumItems(items) };
+      const u = res.usageMetadata;
+      const usage = { model, input: u?.promptTokenCount ?? 0, output: u?.candidatesTokenCount ?? 0, thinking: u?.thoughtsTokenCount ?? 0 };
+      return { ...parsed, items, totals: sumItems(items), usage };
     } catch (e) {
       if (e instanceof AiError) throw e;
       // the key's quota is shared: no point trying another model
-      if ((e as { status?: number })?.status === 429) { console.error("[ai] quota reached", model); throw new AiError("quota"); }
+      // 429: rate/quota reached; 402: the prepaid Gemini credit is used up. Both are shared by every model.
+      if ([402, 429].includes((e as { status?: number })?.status ?? 0)) { console.error("[ai] quota reached", model); throw new AiError("quota"); }
       console.warn("[ai] model failed, trying the next one", model, `${Date.now() - t0} ms`, (e as Error)?.message?.slice(0, 160));
       if (lastGood === model) lastGood = null;
       lastErr = e;
