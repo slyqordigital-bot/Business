@@ -4,6 +4,8 @@ import { z } from "zod";
 
 /** The only place MacroSnap talks to an AI model (Google Gemini Flash). */
 const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
+// the key may be saved as GEMINI_API_KEY or Gemini_Api_Key
+const KEY = () => process.env.GEMINI_API_KEY || process.env.Gemini_Api_Key || "";
 
 export const ItemSchema = z.object({
   name: z.string().min(1).max(60),
@@ -69,7 +71,7 @@ List every distinct food or drink you can see (sauces and oils count when visibl
 Be realistic, not optimistic: restaurant portions are large, oil and dressing add fat. Use US English names. Never judge the person or their body.`;
 
 export function aiReady() {
-  return Boolean(process.env.GEMINI_API_KEY);
+  return Boolean(KEY());
 }
 
 export class AiError extends Error {
@@ -80,7 +82,7 @@ export class AiError extends Error {
 
 export async function analyzePlate(image: Buffer, mime: string): Promise<Plate> {
   if (!aiReady()) throw new AiError("not_configured");
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+  const ai = new GoogleGenAI({ apiKey: KEY() });
 
   let lastErr: unknown;
   for (let attempt = 0; attempt < 2; attempt++) {
