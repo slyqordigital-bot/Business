@@ -79,3 +79,6 @@ Kwop: plans saved (option B) and `/checkout` verified to return a Whop embed.
 - Left to do: Google sign-in (owner creates the OAuth client, then PATCH config/auth + NEXT_PUBLIC_GOOGLE_AUTH=1 and redeploy); Lighthouse pass.
 - Note: the Whop checkout shows the owner's Whop store name ("Whop Wealth Academy") as the seller.
 - Test account created on live: livecheck+1795730387788@macrosnap-test.com.
+
+## Other app in this repository
+`snackquest/` is **SnackQuest**, a separate product (own Vercel project `snackquest`, own Supabase project, own Kwop key). Root configs exclude it (`tsconfig.json`, `eslint.config.mjs`, `.vercelignore`). Work on it from inside `snackquest/` with its own `CLAUDE.md`.
