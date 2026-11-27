@@ -118,6 +118,7 @@ export function CheckoutSheet({ plan, period, onClose, onPaid, onPaymentsOff }: 
           <div id="whop-checkout" className="min-h-[420px]" style={{ opacity: state === "ready" ? 1 : 0, transition: "opacity .3s" }} />
         </div>
         <p className="mt-4 flex items-center justify-center gap-1.5 text-[12px] text-fg-soft"><Lock className="size-3.5" />Secure payment by Whop · Cancel in 1 click</p>
+        <p className="mt-1 text-center text-[12px] text-fg-soft">Billed as MacroSnap, SnackQuest&apos;s parent company.</p>
       </div>
     </Sheet>
   );

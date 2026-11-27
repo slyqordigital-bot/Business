@@ -4,7 +4,7 @@ export const metadata = { title: "Terms" };
 
 export default function Terms() {
   return (
-    <LegalPage title="Terms" updated="November 26, 2026">
+    <LegalPage title="Terms" updated="November 27, 2026">
       <p>By using SnackQuest you agree to these terms. They are short on purpose.</p>
       <h2>The service</h2>
       <p>SnackQuest turns snack breaks into quests and playtime into points. Quests are written by AI and checked from your photo by AI; a check can be wrong, so you can always retake the photo. Points have no cash value, can&apos;t be sold or transferred, and are only redeemed in the Reward Shop.</p>
@@ -15,7 +15,7 @@ export default function Terms() {
       <h2>Healthy fun</h2>
       <p>Quests are about normal snacks, never eating or drinking a lot. Skip any quest you don&apos;t want to do. Nothing in SnackQuest is medical or nutrition advice.</p>
       <h2>Plans and payments</h2>
-      <p>Paid plans renew automatically each month or year until you cancel. Payments are processed by Whop through Kwop. Each plan includes a set number of quests per billing period, shown before you pay. Cancel anytime from Account → Billing; you keep your plan until the end of the period you paid for. Prices are in USD.</p>
+      <p>Paid plans renew automatically each month or year until you cancel. Payments are processed by Whop through Kwop. SnackQuest is run by MacroSnap, its parent company, so the checkout shows MacroSnap as the seller. Each plan includes a set number of quests per billing period, shown before you pay. Cancel anytime from Account → Billing; you keep your plan until the end of the period you paid for. Prices are in USD.</p>
       <h2>Not affiliated</h2>
       <p>SnackQuest is independent and isn&apos;t affiliated with Epic Games, Valve, Riot Games, Microsoft, Mojang, Roblox, Activision or any other publisher. Game names belong to their owners.</p>
       <h2>Changes</h2>
