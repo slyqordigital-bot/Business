@@ -72,7 +72,7 @@ SideQuest was checked and dropped: it is a VR app store (plus unrelated "sideque
 - [ ] Steam sync: needs STEAM_API_KEY.
 - [ ] Gemini: SnackQuest's key is on the free tier (~20 requests/day per model); enable billing on it for real traffic.
 - [ ] Whop checkout shows the owner's Whop company name "MacroSnap" as the seller: rename in Whop (Kwop/Whop setting, not app code).
-- [ ] Lighthouse 95+: at 92 in the lab; next step would be fewer client islands in the hero.
+- [ ] Lighthouse 95+: live landing 91–95 performance (accessibility, best practices, SEO 100), LCP 1.7 s, CLS 0; next step would be fewer client islands in the hero.
 
 ## Plans and quotas (option B, saved in Kwop on 2026-11-26; server-counted per billing period)
 Names, ids and prices are always read from GET KWOP_API (never hardcoded; Kwop prefixes names with "SnackQuest ", `shortName()` strips it). Quotas live in `lib/plans.ts`, matched by plan position (cheapest first).
@@ -103,6 +103,7 @@ Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + l
 `npm run dev`, `node scripts/shot.mjs` screenshots at 390×844 and 1440×900, look at every image, zero console errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the funnel (never pays).
 
 ## Build status (2026-11-27)
+Premium upgrade pass deployed 2026-11-27 from `snackquest/` (`npx vercel deploy --prod --token proxyinjected` inside the folder; `.vercel/project.json` points at project `snackquest`). e2e green 3× phone + 3× computer locally and against production; POST /connect done again.
 Live: **https://snackquest.vercel.app** (Vercel project `snackquest`, team slyqordigital-bot). Supabase project `snackquest` (ref `ldvihumuoylifpoqdwxj`, us-east-1), migrations pushed, auth: mailer_autoconfirm on, site_url + redirect list = production + localhost.
 Kwop: plans saved (option B), `/connect` done (kwop.io/snackquest/app → the app), Whop checkout verified inside the sheet on the live site.
 Verified: e2e funnel green 3× on phone + computer against production; RLS tested (other users' rows invisible, browser writes refused, helper functions not callable); no server secret in `.next/static`; Lighthouse landing: Accessibility/Best Practices/SEO 100, Performance 85–93 (noisy in the cloud container; LCP render delay from hydration).
