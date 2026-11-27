@@ -104,7 +104,8 @@ export function CheckoutSheet({ plan, period, onClose, onPaid, onPaymentsOff }: 
       <div className="flex min-h-[60dvh] flex-col overflow-y-auto px-5 pb-6 pt-5 md:min-h-[560px] md:px-7" data-testid="checkout-sheet">
         <div className="pr-10">
           <p className="text-[13px] text-fg-soft">Checkout</p>
-          <h3 className="font-display text-[26px] font-bold uppercase">{plan && `SnackQuest ${shortName(plan.name)}`} <span className="text-fg-soft">· {price}</span></h3>
+          <h3 className="font-display text-[26px] font-bold uppercase leading-none">{plan && `SnackQuest ${shortName(plan.name)}`}</h3>
+          <p className="mt-1 text-[15px] text-fg-soft">{price}</p>
         </div>
         <div className="relative mt-4 flex-1">
           {state === "loading" && (

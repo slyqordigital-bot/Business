@@ -46,7 +46,7 @@ test("personal-flow funnel", async ({ page }, info) => {
   await expect(page.getByTestId("checkout-sheet")).toBeVisible();
   await page.waitForTimeout(3000);
   await shot("7-checkout");
-  await expect(page.locator("#whop-checkout iframe")).toBeAttached({ timeout: 25_000 });
+  await expect(page.locator("#whop-checkout iframe").first()).toBeAttached({ timeout: 25_000 });
 
   await page.keyboard.press("Escape"); // closes the checkout sheet
   await page.keyboard.press("Escape"); // closes the paywall

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { TopBar } from "@/components/landing/TopBar";
 import { NotifPhone } from "@/components/landing/NotifPhone";
-import { Vsl } from "@/components/landing/Vsl";
+import { VslLazy as Vsl } from "@/components/landing/VslLazy";
 import { Problem, HowItWorks, Features, Changes, Compare, Questions, FinalCta, Footer, StickyCta } from "@/components/landing/Sections";
 import { MainButton } from "@/components/ui/MainButton";
 import { KwopFlow } from "@/components/KwopFlow";
