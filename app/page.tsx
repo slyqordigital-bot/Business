@@ -5,8 +5,13 @@ import { Scanner } from "@/components/landing/Scanner";
 import { Vsl } from "@/components/landing/Vsl";
 import { Problem, HowItWorks, Features, Changes, Compare, Questions, FinalCta, Footer, StickyCta } from "@/components/landing/Sections";
 import { KwopFlow } from "@/components/KwopFlow";
+import { platesScanned, PROOF_MIN } from "@/lib/server/proof";
 
-export default function Home() {
+export const revalidate = 3600;
+
+export default async function Home() {
+  const plates = await platesScanned();
+  const proof = plates !== null && plates >= PROOF_MIN ? Math.floor(plates / 100) * 100 : null;
   const hasVideo = fs.existsSync(path.join(process.cwd(), "public", "vsl.mp4"));
   return (
     <main className="bg-night">
@@ -27,6 +32,7 @@ export default function Home() {
         <div className="relative mx-auto mt-9 max-w-[880px] md:mt-12">
           <Scanner />
           <p className="mt-5 text-center font-mono text-[12px] uppercase tracking-[0.16em] text-cream/45">Free to try · No account · Ready in seconds</p>
+          {proof && <p className="mt-2 text-center font-mono text-[12px] uppercase tracking-[0.16em] text-lime/70" data-testid="proof">{proof.toLocaleString("en-US")}+ plates scanned so far</p>}
         </div>
       </section>
       <section className="px-4 pb-16 md:pb-28">

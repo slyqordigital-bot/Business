@@ -10,7 +10,7 @@ for (const [w, h] of [[390, 844], [1440, 900]]) {
     items: [{ name: "white rice", x: .3, y: .3 }, { name: "grilled chicken", x: .7, y: .3 }, { name: "avocado", x: .3, y: .72 }, { name: "broccoli", x: .72, y: .66 }, { name: "black beans", x: .5, y: .85 }] } }); });
   await p.goto(base + "/", { waitUntil: "networkidle" });
   await p.evaluate(() => localStorage.clear());
-  await p.click('[data-testid="example-chicken-bowl"]');
+  await p.click('[data-testid="example-poke-bowl"]');
   await p.waitForSelector('[data-testid="working"]');
   await p.waitForTimeout(1200);
   await p.screenshot({ path: `${out}/flow-working-${w}.png` });
