@@ -17,7 +17,7 @@ export function AuthPage({ mode }: { mode: "signup" | "login" }) {
   }
 
   return (
-    <main className="relative grid min-h-dvh place-items-center overflow-hidden bg-void px-4 py-10">
+    <main className="relative grid min-h-dvh place-items-center overflow-clip bg-void px-4 py-10">
       <div className="dot-grid pointer-events-none absolute inset-0 opacity-70" />
       <div className="pointer-events-none absolute left-1/2 top-[-200px] h-[460px] w-[760px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(139_92_246/0.35),transparent)]" />
       <div className="relative w-full max-w-[420px]">

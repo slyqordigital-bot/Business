@@ -5,7 +5,8 @@ import { test, expect } from "@playwright/test";
  * landing → sign-up (new email) → 4 questions → gamer tag → the work → locked result → paywall → checkout sheet → close → account.
  * Needs a running app with Supabase, GEMINI_API_KEY and KWOP_API configured.
  */
-test("personal-flow funnel", async ({ page }) => {
+test("personal-flow funnel", async ({ page }, info) => {
+  const shot = (n: string) => page.screenshot({ path: `shots/flow-${info.project.name}-${n}.png` });
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
@@ -17,23 +18,34 @@ test("personal-flow funnel", async ({ page }) => {
   const email = `e2e+${Date.now()}${Math.floor(Math.random() * 1000)}@snackquest-test.com`;
   await page.getByPlaceholder("Email").fill(email);
   await page.getByPlaceholder("Password").fill("Snack-quest-2026!");
+  await shot("1-signup");
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL(/\/start/, { timeout: 30_000 });
 
-  for (const opt of ["Fortnite", "Pizza", "Late night", "Headset"]) {
+  for (const [i, opt] of ["Fortnite", "Pizza", "Late night", "Headset"].entries()) {
     await page.getByTestId(`opt-${opt}`).click();
+    if (i === 1) { await page.waitForTimeout(400); await shot("2-question"); }
   }
   await expect(page.getByTestId("tag-input")).toBeVisible({ timeout: 10_000 });
+  await shot("3-tag");
   await page.getByTestId("build-quest").click();
   await expect(page.getByTestId("work")).toBeVisible();
+  await page.waitForTimeout(2500);
+  await shot("4-work");
   await expect(page.getByTestId("result")).toBeVisible({ timeout: 90_000 });
   await expect(page.getByTestId("quest-card").first()).toBeVisible();
   await expect(page.getByTestId("locked-quests")).toBeVisible();
 
+  await page.waitForTimeout(600);
+  await shot("5-result");
   await expect(page.getByTestId("paywall-title")).toContainText("Fortnite × pizza quest is ready.", { timeout: 15_000 });
+  await page.waitForTimeout(700);
+  await shot("6-paywall");
   await expect(page.getByTestId("top-plan-2")).toHaveAttribute("aria-checked", "true");
   await page.getByTestId("paywall-continue").click();
   await expect(page.getByTestId("checkout-sheet")).toBeVisible();
+  await page.waitForTimeout(3000);
+  await shot("7-checkout");
   await expect(page.locator("#whop-checkout iframe")).toBeAttached({ timeout: 25_000 });
 
   await page.keyboard.press("Escape"); // closes the checkout sheet

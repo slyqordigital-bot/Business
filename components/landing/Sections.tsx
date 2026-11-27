@@ -311,7 +311,7 @@ export function Questions() {
 /* ───────── final block ───────── */
 export function FinalCta() {
   return (
-    <section className="relative overflow-hidden px-4 py-20 md:py-32">
+    <section className="relative overflow-clip px-4 py-20 md:py-32">
       <div className="dot-grid pointer-events-none absolute inset-0 opacity-60" />
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[760px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(200_255_61/0.16),rgb(139_92_246/0.18),transparent)]" />
       <Reveal className="relative mx-auto max-w-[820px] text-center">
@@ -327,7 +327,7 @@ export function FinalCta() {
 
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-line bg-night px-4 pt-14">
+    <footer className="relative overflow-clip border-t border-line bg-night px-4 pt-14">
       <div className="mx-auto grid max-w-[1120px] gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
           <Link href="/" className="inline-flex items-center gap-2"><LogoMark /><span className="font-display text-[21px] font-bold uppercase">SnackQuest</span></Link>

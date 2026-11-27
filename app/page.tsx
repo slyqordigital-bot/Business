@@ -13,7 +13,7 @@ export default function Home() {
     <main className="bg-void">
       <KwopFlow />
       <TopBar />
-      <section className="relative overflow-hidden px-4 pb-14 pt-[108px] md:pb-24 md:pt-[150px]">
+      <section className="relative overflow-clip px-4 pb-14 pt-[108px] md:pb-24 md:pt-[150px]">
         <div className="dot-grid pointer-events-none absolute inset-0" />
         <div className="pointer-events-none absolute left-1/2 top-[-160px] h-[480px] w-[860px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(139_92_246/0.45),rgb(34_225_255/0.12),transparent)] blur-2xl" />
         <div className="relative mx-auto grid max-w-[1120px] items-center gap-12 md:grid-cols-[1.15fr_1fr] md:gap-8">

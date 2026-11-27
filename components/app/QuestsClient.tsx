@@ -108,6 +108,7 @@ export function QuestsClient({ level, mult, open, done, quota, nextName, custom,
               {done.map((q) => (
                 <QuestCard key={q.id} q={q}>
                   <div className="mt-3 flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     {q.photo && <img src={q.photo} alt="" className="size-14 rounded-[12px] object-cover ring-1 ring-line" />}
                     <p className="text-[13px] text-fg-soft">{q.completed_at && new Date(q.completed_at).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</p>
                   </div>
@@ -195,6 +196,7 @@ function ProofSheet({ quest, mult, onClose, onCleared }: { quest: QuestLite | nu
             <p className="mt-2 flex gap-2 text-[14px] text-fg-soft"><Camera className="mt-0.5 size-4 shrink-0 text-cyan" />Snap: {quest.proof}</p>
 
             <div className="relative mt-5 aspect-[4/3] overflow-hidden rounded-[18px] bg-surface-2 ring-1 ring-line">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               {preview ? <img src={preview} alt="Your proof" className="size-full object-cover" /> : (
                 <div className="grid size-full place-items-center text-center text-fg-soft"><div><Camera className="mx-auto size-8" /><p className="mt-2 text-[14px]">Your snack + your screen</p></div></div>
               )}

@@ -87,7 +87,7 @@ export function AuthForm({ mode: initial = "signup", onDone, next = "/start", co
         </div>
         {err?.field === "form" && <p className="text-[13px] text-pink" role="alert">{err.msg}</p>}
         <button type="submit" disabled={busy} data-testid="auth-submit"
-          className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-lime text-[16px] font-semibold text-white transition active:scale-[0.98] disabled:opacity-70">
+          className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-lime text-[16px] font-semibold text-void transition active:scale-[0.98] disabled:opacity-70">
           {busy && <Loader2 className="size-4 animate-spin" />}
           {mode === "signup" ? "Create my account" : "Log in"}
         </button>

@@ -70,6 +70,13 @@ export async function getPlan(email: string | null | undefined, opts: { fresh?: 
   const none: PlanState = { paid: false, plan: null, status: null, until: null, level: 0 };
   if (!email) return none;
   const key = email.toLowerCase();
+  // local development only: preview the paid app as one test email (never active in production builds)
+  if (process.env.NODE_ENV === "development" && process.env.DEV_PAID_EMAIL && process.env.DEV_PAID_EMAIL.toLowerCase() === key) {
+    const { plans } = await getPlans();
+    const lvl = Number(process.env.DEV_PAID_LEVEL || 2) as 1 | 2 | 3;
+    const p = plans.find((x) => x.level === lvl);
+    return { paid: true, plan: p ? { id: p.id, name: p.name } : null, status: "active", until: new Date(Date.now() + 20 * 86_400_000).toISOString(), level: lvl };
+  }
   const hit = planCache.get(key);
   if (!opts.fresh && hit && Date.now() - hit.at < 60_000) return hit.v;
   try {

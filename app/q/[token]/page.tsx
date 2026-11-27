@@ -21,7 +21,7 @@ export default async function Shared({ params }: { params: Promise<{ token: stri
   if (!r) notFound();
   const RC = { common: "text-cyan", rare: "text-violet", legendary: "text-lime" };
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-void px-4 py-8">
+    <main className="relative min-h-dvh overflow-clip bg-void px-4 py-8">
       <KwopFlow />
       <div className="dot-grid pointer-events-none absolute inset-x-0 top-0 h-[480px] opacity-60" />
       <div className="relative mx-auto max-w-[640px]">

@@ -53,6 +53,11 @@ export async function POST(req: Request) {
   try {
     await logAi(ctx.user.id, "run");
     const id = await buildRun(ctx.user.id, { ...a, steamGames: steam?.games });
+    // their main game is linked right away, so the session timer works on day one
+    if (a.game && a.game !== "Something else") {
+      const { count } = await admin().from("games").select("id", { count: "exact", head: true }).eq("user_id", ctx.user.id);
+      if (!count) await admin().from("games").insert({ user_id: ctx.user.id, name: a.game, source: "manual" });
+    }
     if (!ctx.profile.onboarded) {
       await admin().from("profiles").update({ onboarded: true }).eq("id", ctx.user.id);
       track("onboarding_done", ctx.user.email);

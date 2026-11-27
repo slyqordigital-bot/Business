@@ -39,8 +39,24 @@ SideQuest was checked and dropped: it is a VR app store (plus unrelated "sideque
 - **Honest limits shown in the app:** websites can't read console/Epic games, so Game Sync = Steam Web API (public profiles, recent playtime) + an in-browser session timer (tab must stay open, capped per day). Rewards are fulfilled by the SnackQuest team by hand; status updates in Rewards. Not affiliated with Epic, Valve, Riot or any game.
 - **Visual direction (Gaming, neon on dark):** bg `#07060D`, deep purple panels `#140F24` / `#1C1533`, borders `rgb(255 255 255 / .09)`, cyan `#22E1FF`, violet `#8B5CF6`, brand lime `#C8FF3D` (main buttons, points), hot pink `#FF4D8D` (snack accents), light sections `#F5F3FA` ink `#0E0B18`. Fonts: Rajdhani 700 (display, used sparingly), Inter (text), JetBrains Mono (labels `[ HOW IT WORKS ]`). Signature elements: 1) HUD panels with clipped corners + glowing edge, 2) XP bar (segmented, lime fill, shimmer), 3) quest cards with a rarity stripe (common cyan / rare violet / legendary lime).
 
-## Plans and quotas
-Names, ids and prices are always read from GET KWOP_API (never hardcoded). Quotas live in `lib/plans.ts`, matched by plan position (cheapest first). Filled in after the owner picks prices (step 0c).
+## Plans and quotas (option B, saved in Kwop on 2026-11-26; server-counted per billing period)
+Names, ids and prices are always read from GET KWOP_API (never hardcoded; Kwop prefixes names with "SnackQuest ", `shortName()` strips it). Quotas live in `lib/plans.ts`, matched by plan position (cheapest first).
+| Plan (Kwop id) | Price | Per day | Yearly (−20 %) | Tag | Quotas |
+|---|---|---|---|---|---|
+| Snacker (1926) | $6.99/mo | $0.23 | $67/yr ($0.18/day) | For casual snackers | 20 quests/month, 1 linked game, 1× points, 30 days of history |
+| **Grinder (1927)** Most popular | $9.99/mo | $0.33 | $96/yr ($0.26/day) | For daily grinders | 60 quests/month, 3 games, 1.5× points, streak shields, 30-day projection, full history |
+| Legend (1928) | $16.99/mo | $0.57 | $163/yr ($0.45/day) | For hardcore players | 150 quests/month, 10 games, 2× points, custom quests from a snack photo, rewards handled first |
+Free accounts: build up to 4 quest runs a day (AI cost cap), see quest #1 only; the app requires a paid plan.
+Locked on lower plans: Snacker sees the projection blurred ("Unlock with Grinder") and custom quests locked; Grinder sees custom quests locked ("Unlock with Legend").
+
+### Points economy (owner-tunable: `POINTS` in lib/plans.ts and the `rewards` table in Supabase)
+Quest: common 40, rare 60, legendary 100 pts × plan multiplier. Play: 1 pt per 5 min (timer beats every 60 s while the tab is visible, or new Steam playtime), max 180 counted min/day. Photo checks: 20/day max. Catalog seed: $10 Steam/PSN/Xbox cards 3,000 · mouse 12,000 · controller 20,000 · keyboard 24,000 · headset 30,000. Redemptions: points held at once, status requested → processing → shipped → delivered, set by the owner in Supabase (table `redemptions`, add `tracking`). Max 3 open redemptions per user; cancel while "requested" refunds.
+
+## Dev notes
+- Node in this cloud container needs `NODE_USE_ENV_PROXY=1` to reach Supabase through the proxy (`NODE_USE_ENV_PROXY=1 npm run dev`).
+- Gemini: the free key is limited to ~20 requests/day per model; `lib/ai.ts` falls through gemini-flash-lite-latest → 3.5-flash-lite → 3.1-flash-lite (fast, ~1–2 s). The full Flash models were 90 s+ here. Use a billing-enabled key for real traffic.
+- Steam sync stays hidden until `STEAM_API_KEY` is set (session timer covers every game meanwhile).
+- `scripts/shot.mjs` (screenshots), `scripts/icons.mjs` (icons from app/icon.svg), `tests/e2e.spec.ts` (real funnel, never pays).
 
 ## Kwop API (server only, `lib/kwop.ts`)
 `KWOP_API` env. GET → plans; POST /checkout {plan, period, email, k} → {embed, ref, fallback_url} (409 payments_off); POST /confirm {ref}; GET /plan?email= (cached 60 s); POST /cancel {email, except_ref?}; POST /event {type, email, detail} fire-and-forget; POST /connect {url}. `k` from ?k= → cookie `kwop_k` 30 days → profiles.k. Tracking script `https://kwop.io/flow.js` data-site `s_6522168370` on public pages only.

@@ -1,0 +1,7 @@
+.env*
+KWOP-BUILD.md
+shots
+test-results
+playwright-report
+node_modules
+.next

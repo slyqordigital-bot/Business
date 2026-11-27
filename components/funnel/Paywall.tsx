@@ -101,7 +101,7 @@ export function Paywall({ title, line, onContinue, busy, notice, currentLevel = 
 
   const ContinueBtn = ({ floating }: { floating?: boolean }) => (
     <button type="button" disabled={!plan || busy} onClick={() => plan && onContinue(plan, period)} data-testid={floating ? undefined : "paywall-continue"}
-      className={cn("flex h-[58px] w-full items-center justify-center rounded-full bg-lime text-[17px] font-semibold text-white transition active:scale-[0.97] disabled:opacity-60",
+      className={cn("flex h-[58px] w-full items-center justify-center rounded-full bg-lime text-[17px] font-semibold text-void transition active:scale-[0.97] disabled:opacity-60",
         floating && "shadow-[0_10px_30px_-8px_rgb(200_255_61/0.5)]")}>
       {plan ? `Continue with ${shortName(plan.name)}` : "Continue"}
     </button>

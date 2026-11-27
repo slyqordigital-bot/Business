@@ -96,7 +96,7 @@ function Flow({ initialAnswers, steamEnabled, run, setRun, paid, justUnlocked }:
   }
 
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-void">
+    <main className="relative min-h-dvh overflow-clip bg-void">
       <div className="dot-grid pointer-events-none absolute inset-x-0 top-0 h-[520px] opacity-60" />
       <div className="pointer-events-none absolute left-1/2 top-[-220px] h-[480px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(139_92_246/0.32),transparent)]" />
       <header className="relative mx-auto flex max-w-[1040px] items-center justify-between px-4 pt-5 md:px-8">
