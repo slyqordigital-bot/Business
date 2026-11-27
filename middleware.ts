@@ -9,7 +9,9 @@ export async function middleware(req: NextRequest) {
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   let signedIn = false;
 
-  if (url && anon) {
+  // visitors without a Supabase session cookie are signed out: no network call needed
+  const hasSession = req.cookies.getAll().some((c) => c.name.startsWith("sb-"));
+  if (url && anon && hasSession) {
     const sb = createServerClient(url, anon, {
       cookies: {
         getAll: () => req.cookies.getAll(),
