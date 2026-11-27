@@ -66,3 +66,17 @@ Next.js App Router + TS + Tailwind + shadcn-style components + framer-motion + l
 
 ## Verification loop (after every feature)
 `npm run dev`, `node scripts/shot.mjs` screenshots at 390×844 and 1440×900, look at every image, zero console errors, fix, 3 passes, commit. `tests/e2e.spec.ts` covers the funnel (never pays).
+
+## Build status (2026-11-27)
+Live: **https://snackquest.vercel.app** (Vercel project `snackquest`, team slyqordigital-bot). Supabase project `snackquest` (ref `ldvihumuoylifpoqdwxj`, us-east-1), migrations pushed, auth: mailer_autoconfirm on, site_url + redirect list = production + localhost.
+Kwop: plans saved (option B), `/connect` done (kwop.io/snackquest/app → the app), Whop checkout verified inside the sheet on the live site.
+Verified: e2e funnel green 3× on phone + computer against production; RLS tested (other users' rows invisible, browser writes refused, helper functions not callable); no server secret in `.next/static`; Lighthouse landing: Accessibility/Best Practices/SEO 100, Performance 85–93 (noisy in the cloud container; LCP render delay from hydration).
+Dev preview of the paid app: set `DEV_PAID_EMAIL` (+ optional `DEV_PAID_LEVEL`) in `.env.local`, development only; `node scripts/app-shots.mjs`.
+
+### Not done yet
+- Steam sync: needs `STEAM_API_KEY` (steamcommunity.com/dev/apikey) in Vercel + `.env.local`; the UI shows "coming soon" and the session timer meanwhile.
+- Google sign-in: owner creates the OAuth client (redirect URI `https://ldvihumuoylifpoqdwxj.supabase.co/auth/v1/callback`), then PATCH Supabase auth `external_google_enabled/client_id/secret` and set `NEXT_PUBLIC_GOOGLE_AUTH=1` in Vercel + redeploy.
+- Gemini free key: ~20 requests/day per model (3 Flash-Lite models chained). Enable billing on the key for real traffic.
+- Whop store shows the owner's Whop company name ("MacroSnap"): rename it in Whop if SnackQuest should show there.
+- Rewards are fulfilled by hand: owner updates `redemptions.status` / `tracking` in Supabase.
+- Lighthouse performance 95+: next step would be swapping framer-motion on the landing page for CSS animations.
