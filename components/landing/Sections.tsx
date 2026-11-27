@@ -66,7 +66,7 @@ export function HowItWorks() {
           <ol className="mt-10 space-y-3">
             {HOW.map(({ icon: I, t, d }, i) => (
               <li key={t}>
-                <button onClick={() => setStep(i)} className={cn("flex w-full gap-4 rounded-[20px] p-4 text-left transition", step === i ? "bg-cream shadow-[0_10px_30px_-16px_rgb(29_26_21/0.4)]" : "opacity-60 hover:opacity-90")}>
+                <button onClick={() => setStep(i)} className={cn("flex w-full gap-4 rounded-[20px] p-4 text-left transition", step === i ? "bg-cream shadow-[0_10px_30px_-16px_rgb(29_26_21/0.4)]" : "hover:bg-cream/60")}>
                   <span className={cn("grid size-11 shrink-0 place-items-center rounded-[14px] transition", step === i ? "bg-tomato text-white" : "bg-ink/5")}><I className="size-5" /></span>
                   <span>
                     <span className="font-mono text-[12px] text-ink-soft">0{i + 1}</span>
@@ -367,10 +367,10 @@ export function Footer() {
         </div>
       </div>
       <p className="mx-auto mt-12 max-w-[1120px] text-[12px] text-cream/40">© {new Date().getFullYear()} MacroSnap. Nutrition values are estimates, not medical advice.</p>
-      <div aria-hidden className="pointer-events-none mt-4 select-none text-center font-serif font-semibold leading-[0.8] tracking-[-0.06em] text-cream"
-        style={{ fontSize: "clamp(72px, 19vw, 280px)", opacity: 0.13, maskImage: "linear-gradient(180deg,#000 20%,transparent 95%)", WebkitMaskImage: "linear-gradient(180deg,#000 20%,transparent 95%)" }}>
-        MacroSnap
-      </div>
+      <svg aria-hidden viewBox="0 0 1000 200" className="pointer-events-none mx-auto mt-4 block w-full max-w-[1400px] select-none"
+        style={{ opacity: 0.13, maskImage: "linear-gradient(180deg,#000 20%,transparent 95%)", WebkitMaskImage: "linear-gradient(180deg,#000 20%,transparent 95%)" }}>
+        <text x="500" y="178" textAnchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" fill="currentColor" className="font-serif text-cream" style={{ fontSize: 230, fontWeight: 600 }}>MacroSnap</text>
+      </svg>
     </footer>
   );
 }

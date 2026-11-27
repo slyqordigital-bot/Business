@@ -1,11 +1,50 @@
 # MacroSnap — project brief for every session
 
 Snap your meal, track your macros instantly. A real SaaS built with the Kwop method.
-The full owner brief is in `KWOP-BUILD.md` (local only, gitignored: it holds the Kwop key). Read it before working.
+The full owner briefs are `KWOP-BUILD.md` (first build) and `KWOP-UPGRADE.md` (premium build, Kwop Builder), both local only and gitignored: they hold the Kwop key. Read them before working. The rules below replace older rules on the same topics.
 Secrets live only in `.env.local` and in Vercel: `KWOP_API`, Supabase keys, `GEMINI_API_KEY`. Never commit them, never put them in browser code.
 
 ## RESULT
 **your macros** — "Snap my macros" is the main button; the creating screen is "Reading your plate…"; the paywall says "Your plate's macros are ready."
+
+## Kwop rules that sell (premium build, 2026-11-27 — follow literally)
+1. Landing sells the RESULT, never the price: no plans, prices or "Pricing" link on `/`.
+2. One action everywhere: "Snap my macros" → the hero scanner.
+3. Value before price and before any form: the scan works on the landing, no account.
+4. Sign-up at the unlock moment: Google first (hidden until it works), email + password, no confirmation, no card. The try is saved and attached at sign-up. Anonymous tries capped on the server (3/day per device + IP).
+5. Aha = watching their plate being read: 5 named steps, % up to 99, "Your plate's macros are ready."
+6. Paywall at the peak over their own result: photo + foods + insight clear, numbers blurred, "See my full macros".
+7. Prices per day big, per month small; crossed price only for a real discount (yearly vs 12× monthly).
+8. Checkout inside the page (Whop embed via POST KWOP_API/checkout), never another site.
+9. Three plans that climb; lower plans visibly miss things ("Unlock with Plate/Feast"); a finished quota opens the upgrade sheet (next plan only, 3 lines, price a day); after an upgrade POST /cancel with except_ref.
+10. Phones first (390 px), then desktop.
+11. Everything real: real AI, real accounts, real checkout. No placeholder, no dead button, no "coming soon" in the funnel.
+12. Zero dead ends; a returning visitor lands where they stopped (locked result if unpaid, app if paid).
+13. Honest: no fake reviews, counts, logos or countdowns. The hero proof line (`lib/server/proof.ts`) shows the TRUE number of plates scanned only once it reaches 500.
+
+### Premium build (Kwop Builder) on top
+- Motion VSL under the hero (HTML/CSS/JS, 6–8 scenes, 45–75 s, muted autoplay + replay; `public/vsl.mp4` replaces it when present; script in VSL.md).
+- Landing like the best of the niche: live scanner hero, VSL, how it works in a phone frame, animated feature loops, comparison, questions, final CTA, sticky main button on phones.
+- Kwop-grade kit: dark hero with 22 px dot grid + warm glow, floating 980 px top bar (radius 24, blur, 9 % white border), breathing pill button with nudging arrow and 95.5 % press, mono bracket labels, reveals (14 px rise, 0.5 s, cubic-bezier(.22,.8,.24,1), 60 ms stagger), count-ups 1.3 s, reduced motion respected, giant faded wordmark footer.
+- Unlock film after paying; branded share image (next/og) + Share on every meal; premium pass (dark mode in app, empty states, Lighthouse).
+
+## Audit against the premium rules (2026-11-27)
+- [x] No price or Pricing link on the landing page (checked `/` source)
+- [x] One action "Snap my macros" everywhere, all CTAs lead to `#try`
+- [x] Hero = live scanner (camera on phones, 3 real example photos, true-facts line)
+- [x] Scan animation over their photo, 5 named steps, ring to 99 %, retry once then "Try again"
+- [x] Locked teaser: photo + pinned labels + food list + insight clear; numbers never sent to the browser while locked
+- [x] Sign-up sheet "Save this meal to your log", Google hidden until enabled, errors in plain words, forgot password
+- [x] Paywall: title, personal line, Monthly/Yearly −20 %, per-day price big, "Most popular" Plate pre-selected, due-today line, Whop chips, what you unlock, 3 questions, plans again under "Pick up where you left off", floating button, small print
+- [x] Crossed yearly price (12× monthly) — real discount (added 2026-11-27)
+- [x] Checkout sheet with Whop embed, 2 s / 15 s fallbacks, 409 → "Payments open in a moment"
+- [x] Confirm + unlock film + unblur in place; `/dashboard?paid=1&ref=` handled
+- [x] Quotas server-counted; upgrade sheet; Billing with Change plan + Cancel (2 taps)
+- [x] k / utm / plan attribution (cookie → profile), Kwop flow.js on public pages only, events
+- [x] Real proof line under the hero, true DB count, hidden under 500 (added 2026-11-27; 8 meals today → hidden)
+- [x] Lighthouse mobile on `/`: perf 90 (observed LCP 0.23 s, simulated 3.4 s), a11y 96, best practices 100, SEO 100 (fixed 2026-11-27: lighter Fraunces file, 320 px WebP example thumbnails, tap targets, file-input label, SVG footer wordmark, step contrast)
+- [ ] Google sign-in: waiting for the owner's OAuth client (redirect URI https://ugucwehaptrmkctpibdl.supabase.co/auth/v1/callback), then PATCH config/auth + `NEXT_PUBLIC_GOOGLE_AUTH=1` + redeploy
+- [ ] Lighthouse 95+ performance under simulated throttling: remaining cost is framer-motion hydration on the landing page
 
 ## Step 0 — what already converts (US market)
 | App | Landing / headline | First result | Paywall | Plans |

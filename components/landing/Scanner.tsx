@@ -12,9 +12,9 @@ import { deviceId, preparePhoto, tryStore, type SavedTry } from "@/lib/client";
 import { cn } from "@/lib/utils";
 
 export const EXAMPLES = [
-  { key: "avocado-toast", label: "Avocado toast", src: "/examples/avocado-toast.jpg" },
-  { key: "poke-bowl", label: "Poke bowl", src: "/examples/poke-bowl.jpg" },
-  { key: "spaghetti", label: "Spaghetti", src: "/examples/spaghetti.jpg" },
+  { key: "avocado-toast", label: "Avocado toast", src: "/examples/avocado-toast.jpg", thumb: "/examples/avocado-toast-thumb.webp" },
+  { key: "poke-bowl", label: "Poke bowl", src: "/examples/poke-bowl.jpg", thumb: "/examples/poke-bowl-thumb.webp" },
+  { key: "spaghetti", label: "Spaghetti", src: "/examples/spaghetti.jpg", thumb: "/examples/spaghetti-thumb.webp" },
 ];
 
 type State =
@@ -122,7 +122,7 @@ function ScannerInner({ mealId, paywallClosed }: { mealId: React.RefObject<strin
                   <span className="mt-1 flex items-center justify-center gap-1.5 text-[15px] text-ink-soft"><ImageUp className="size-4" />Take a photo of your meal or upload one</span>
                 </span>
               </button>
-              <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" data-testid="file-input"
+              <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" aria-label="Take or upload a photo of your meal" data-testid="file-input"
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) run(f); e.target.value = ""; }} />
             </div>
             <div className="mt-5">
@@ -132,7 +132,7 @@ function ScannerInner({ mealId, paywallClosed }: { mealId: React.RefObject<strin
                   <button key={ex.key} type="button" onClick={() => run(ex.src)} data-testid={`example-${ex.key}`}
                     className="group overflow-hidden rounded-[16px] bg-white/5 ring-1 ring-white/10 transition hover:ring-lime/60 active:scale-[0.97]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={ex.src} alt={ex.label} width={160} height={160} className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105" />
+                    <img src={ex.thumb} alt="" width={160} height={160} decoding="async" className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105" />
                     <span className="block py-2 text-[13px] font-medium text-cream/85">{ex.label}</span>
                   </button>
                 ))}
