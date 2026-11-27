@@ -93,6 +93,10 @@ Quest: common 40, rare 60, legendary 100 pts × plan multiplier. Play: 1 pt per 
 - Steam sync stays hidden until `STEAM_API_KEY` is set (session timer covers every game meanwhile).
 - `scripts/shot.mjs` (screenshots), `scripts/scroll-shots.mjs` (viewport shots while scrolling: sticky bars, reveals), `scripts/icons.mjs` (icons from app/icon.svg), `tests/e2e.spec.ts` (real funnel, never pays).
 
+## Payments check (2026-11-27, never pays)
+`BASE_URL=… node scripts/checkout-check.mjs`: a new account opens /pricing, then each plan × period, and reads the price inside Whop's sheet; then the return page and /api/checkout/confirm with an unpaid ref (must not unlock). Verified live: 6/6 prices match the paywall, Whop loads in 1.6–3.7 s, unpaid refs stay locked.
+The checkout prefills the account email in Whop and locks it (`buyerEmail` + `lockBuyerEmail` on `ck.create("checkout", …)`), so a buyer can't pay under another email than the one Kwop's `/plan?email=` checks.
+
 ## Kwop API (server only, `lib/kwop.ts`)
 `KWOP_API` env. GET → plans; POST /checkout {plan, period, email, k} → {embed, ref, fallback_url} (409 payments_off); POST /confirm {ref}; GET /plan?email= (cached 60 s); POST /cancel {email, except_ref?}; POST /event {type, email, detail} fire-and-forget; POST /connect {url}. `k` from ?k= → cookie `kwop_k` 30 days → profiles.k. Tracking script `https://kwop.io/flow.js` data-site `s_6522168370` on public pages only.
 

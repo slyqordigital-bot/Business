@@ -5,7 +5,7 @@ import { Sheet } from "@/components/ui/Sheet";
 import { shortName } from "@/lib/plans";
 import type { ClientPlan, Period } from "./Paywall";
 
-type WhopCheckout = { create: (n: string) => { mount: (sel: string) => void }; destroy?: () => void };
+type WhopCheckout = { create: (n: string, opts?: Record<string, unknown>) => { mount: (sel: string) => void }; destroy?: () => void };
 declare global {
   interface Window {
     WhopElements?: () => { checkout: { create: (o: Record<string, unknown>) => WhopCheckout } };
@@ -57,7 +57,7 @@ export function CheckoutSheet({ plan, period, onClose, onPaid, onPaymentsOff }: 
       if (!r) return setState("error");
       if (r.status === 409) { onPaymentsOff(); return; }
       if (!r.ok) return setState("error");
-      const { embed, ref, fallback_url } = await r.json();
+      const { embed, ref, fallback_url, email } = await r.json();
       if (!embed) { if (fallback_url) location.assign(fallback_url); else setState("error"); return; }
       try {
         await loadWhop();
@@ -78,7 +78,8 @@ export function CheckoutSheet({ plan, period, onClose, onPaid, onPaymentsOff }: 
         onComplete: (res: { result?: string } | undefined) => { if (res && res.result === "payment") onPaid(ref); },
       });
       ckRef.current = ck;
-      ck.create("checkout").mount("#whop-checkout");
+      // the account email, filled in and locked: Kwop matches the payment to the account by this email
+      ck.create("checkout", email ? { buyerEmail: email, lockBuyerEmail: true } : undefined).mount("#whop-checkout");
       timers.push(setTimeout(() => {
         if (document.querySelector("#whop-checkout iframe")) show();
       }, 2000));

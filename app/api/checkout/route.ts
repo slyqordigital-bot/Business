@@ -19,7 +19,8 @@ export async function POST(req: Request) {
       console.error("[checkout]", r.status, r.body);
       return NextResponse.json({ error: "failed" }, { status: 502 });
     }
-    return NextResponse.json({ embed: r.body.embed ?? null, ref: r.body.ref, fallback_url: r.body.fallback_url });
+    // email: the buyer's own account email, prefilled and locked in Whop so the payment lands on this account
+    return NextResponse.json({ embed: r.body.embed ?? null, ref: r.body.ref, fallback_url: r.body.fallback_url, email: ctx.user.email });
   } catch (e) {
     console.error("[checkout]", e);
     return NextResponse.json({ error: "failed" }, { status: 502 });
